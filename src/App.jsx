@@ -102,9 +102,13 @@ function Hero() {
 
     const renderLoop = () => {
       if (video && Number.isFinite(video.duration) && video.duration > 0) {
-        const diff = targetTime - video.currentTime;
-        if (Math.abs(diff) > 0.002) {
-          video.currentTime += diff * 0.28;
+        const diff = Math.abs(targetTime - video.currentTime);
+        if (diff > 0.04) {
+          if (typeof video.fastSeek === 'function') {
+            video.fastSeek(targetTime);
+          } else {
+            video.currentTime = targetTime;
+          }
         }
       }
       animationFrameId = requestAnimationFrame(renderLoop);
@@ -118,9 +122,9 @@ function Hero() {
           id: 'hero-film-scrub',
           trigger: ref.current,
           start: 'top top',
-          end: '+=220%',
+          end: '+=200%',
           pin: true,
-          scrub: 1.2,
+          scrub: 0.5,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: self => {
@@ -164,9 +168,13 @@ function BuildingSequence() {
 
     const renderLoop = () => {
       if (video && Number.isFinite(video.duration) && video.duration > 0) {
-        const diff = targetTime - video.currentTime;
-        if (Math.abs(diff) > 0.002) {
-          video.currentTime += diff * 0.28;
+        const diff = Math.abs(targetTime - video.currentTime);
+        if (diff > 0.04) {
+          if (typeof video.fastSeek === 'function') {
+            video.fastSeek(targetTime);
+          } else {
+            video.currentTime = targetTime;
+          }
         }
       }
       animationFrameId = requestAnimationFrame(renderLoop);
@@ -179,7 +187,7 @@ function BuildingSequence() {
         trigger: ref.current,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 1.2,
+        scrub: 0.5,
         onUpdate: self => {
           if (video && Number.isFinite(video.duration) && video.duration > 0) {
             targetTime = self.progress * video.duration;

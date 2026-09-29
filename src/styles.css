@@ -27,7 +27,40 @@ body {
   margin: 0;
   background: var(--navy);
   color: var(--cream);
-  overflow-x: hidden
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GPU Hardware Acceleration for smooth lag-free scrollmotion */
+.hero,
+.building-sequence,
+.rooms-section,
+.amenities,
+.gallery,
+.manifesto,
+.residence,
+.location,
+.floorplan,
+.enquiry,
+.nav {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.hero-video,
+.building-film {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (max-width: 768px) {
+  .nav.hero-complete {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
 }
 
 body.menu-open {
