@@ -38,17 +38,57 @@ function Image({ src, alt = '', className = '' }) { return <img src={src} alt={a
 
 function Navigation({ onEnquire }) {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [heroMotionComplete, setHeroMotionComplete] = useState(false);
   const links = [['Experience', '#experience'], ['Residences', '#residences'], ['Amenities', '#amenities'], ['Location', '#location'], ['Gallery', '#gallery']];
-  useEffect(() => { document.body.classList.toggle('menu-open', open); return () => document.body.classList.remove('menu-open'); }, [open]);
-  useEffect(() => { const update = () => setScrolled(window.scrollY > 24); update(); window.addEventListener('scroll', update, { passive: true }); return () => window.removeEventListener('scroll', update); }, []);
+  
+  useEffect(() => { 
+    document.body.classList.toggle('menu-open', open); 
+    return () => document.body.classList.remove('menu-open'); 
+  }, [open]);
+
+  useEffect(() => { 
+    const updateHeaderState = () => {
+      const heroTrigger = ScrollTrigger.getById('hero-film-scrub');
+      if (heroTrigger && heroTrigger.end) {
+        setHeroMotionComplete(window.scrollY >= (heroTrigger.end - 60));
+      } else {
+        setHeroMotionComplete(window.scrollY > window.innerHeight * 2.1);
+      }
+    }; 
+    updateHeaderState(); 
+    window.addEventListener('scroll', updateHeaderState, { passive: true }); 
+    ScrollTrigger.addEventListener('refresh', updateHeaderState);
+    return () => {
+      window.removeEventListener('scroll', updateHeaderState);
+      ScrollTrigger.removeEventListener('refresh', updateHeaderState);
+    };
+  }, []);
+
   return <>
-    <header className={`nav ${scrolled ? 'scrolled' : ''}`}><a className="brand" href="#top" aria-label="Verona home"><span className="brand-mark">V</span><span><b>VERONA</b><small>RAHEJA EXOTICA · MUMBAI</small></span></a>
-      <nav className="nav-links">{links.map(([label, href]) => <a key={label} href={href}>{label}</a>)}</nav>
+    <header className={`nav ${heroMotionComplete ? 'hero-complete' : 'hero-motion'}`}>
+      <a className="brand" href="#top" aria-label="Verona home">
+        <span className="brand-mark">V</span>
+        <span><b>VERONA</b><small>RAHEJA EXOTICA · MUMBAI</small></span>
+      </a>
+      <nav className="nav-links">
+        {links.map(([label, href]) => <a key={label} href={href}>{label}</a>)}
+      </nav>
       <button className="nav-cta" onClick={onEnquire}>Enquire <ArrowUpRight size={14} /></button>
-      <button className="menu-toggle" onClick={() => setOpen(!open)} aria-label={open ? 'Close menu' : 'Open menu'}>{open ? <X /> : <Menu />}</button>
+      <button className="menu-toggle" onClick={() => setOpen(!open)} aria-label={open ? 'Close menu' : 'Open menu'}>
+        {open ? <X /> : <Menu />}
+      </button>
     </header>
-    <div className={`menu-overlay ${open ? 'is-open' : ''}`} aria-hidden={!open}><div className="menu-overlay-inner"><Eyebrow>Discover Verona</Eyebrow>{links.map(([label, href], i) => <a key={label} href={href} onClick={() => setOpen(false)}><span>0{i + 1}</span>{label}<ArrowUpRight /></a>)}<p>Madh Island · Mumbai</p></div></div>
+    <div className={`menu-overlay ${open ? 'is-open' : ''}`} aria-hidden={!open}>
+      <div className="menu-overlay-inner">
+        <Eyebrow>Discover Verona</Eyebrow>
+        {links.map(([label, href], i) => (
+          <a key={label} href={href} onClick={() => setOpen(false)}>
+            <span>0{i + 1}</span>{label}<ArrowUpRight />
+          </a>
+        ))}
+        <p>Madh Island · Mumbai</p>
+      </div>
+    </div>
   </>;
 }
 
@@ -56,20 +96,51 @@ function Hero() {
   const ref = useRef(null);
   const film = useRef(null);
   useEffect(() => {
+    let animationFrameId;
+    let targetTime = 0;
+    const video = film.current;
+
+    const renderLoop = () => {
+      if (video && Number.isFinite(video.duration) && video.duration > 0) {
+        const diff = targetTime - video.currentTime;
+        if (Math.abs(diff) > 0.002) {
+          video.currentTime += diff * 0.28;
+        }
+      }
+      animationFrameId = requestAnimationFrame(renderLoop);
+    };
+    animationFrameId = requestAnimationFrame(renderLoop);
+
     const ctx = gsap.context(() => {
       gsap.from('.hero-copy > *', { y: 35, opacity: 0, duration: 1.2, stagger: .13, ease: 'power3.out', delay: .25 });
-      const story = gsap.timeline({ scrollTrigger: { id: 'hero-film-scrub', trigger: ref.current, start: 'top top', end: '+=220%', pin: true, scrub: 1.25, anticipatePin: 1, invalidateOnRefresh: true, onUpdate: self => {
-        const video = film.current;
-        if (!video || !Number.isFinite(video.duration) || !video.duration) return;
-        const nextTime = self.progress * video.duration;
-        if (Math.abs(video.currentTime - nextTime) > .035) video.currentTime = nextTime;
-      } } });
+      const story = gsap.timeline({
+        scrollTrigger: {
+          id: 'hero-film-scrub',
+          trigger: ref.current,
+          start: 'top top',
+          end: '+=220%',
+          pin: true,
+          scrub: 1.2,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: self => {
+            if (video && Number.isFinite(video.duration) && video.duration > 0) {
+              targetTime = self.progress * video.duration;
+            }
+          }
+        }
+      });
       story.to('.hero-copy', { y: -48, autoAlpha: 0, duration: .2, ease: 'none' }, .45)
         .fromTo('.hero-stats > div', { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .11, stagger: .065, ease: 'none' }, .48)
         .to('.hero-scroll', { autoAlpha: 0, duration: .08, ease: 'none' }, .91);
     }, ref);
-    return () => ctx.revert();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      ctx.revert();
+    };
   }, []);
+
   return <section className="hero" id="top" ref={ref}>
     <video ref={film} className="hero-video" src={heroFilm} muted playsInline preload="auto" aria-label="Cinematic Verona property film" onLoadedMetadata={e => { const trigger = ScrollTrigger.getById('hero-film-scrub'); if (trigger && e.currentTarget.duration) e.currentTarget.currentTime = trigger.progress * e.currentTarget.duration; }} /><div className="hero-shade" />
     <div className="hero-top"><span>19°08' N&nbsp; 72°47' E</span><span>MADH ISLAND, MUMBAI</span></div>
@@ -84,19 +155,46 @@ function Manifesto() {
 }
 
 function BuildingSequence() {
-  const ref = useRef(null); const film = useRef(null);
+  const ref = useRef(null); 
+  const film = useRef(null);
   useEffect(() => {
+    let animationFrameId;
+    let targetTime = 0;
+    const video = film.current;
+
+    const renderLoop = () => {
+      if (video && Number.isFinite(video.duration) && video.duration > 0) {
+        const diff = targetTime - video.currentTime;
+        if (Math.abs(diff) > 0.002) {
+          video.currentTime += diff * 0.28;
+        }
+      }
+      animationFrameId = requestAnimationFrame(renderLoop);
+    };
+    animationFrameId = requestAnimationFrame(renderLoop);
+
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({ id: 'building-film-scrub', trigger: ref.current, start: 'top top', end: 'bottom bottom', scrub: 1.2, onUpdate: self => {
-        const video = film.current;
-        if (!video || !Number.isFinite(video.duration) || !video.duration) return;
-        const nextTime = self.progress * video.duration;
-        if (Math.abs(video.currentTime - nextTime) > .035) video.currentTime = nextTime;
-      } });
+      ScrollTrigger.create({
+        id: 'building-film-scrub',
+        trigger: ref.current,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.2,
+        onUpdate: self => {
+          if (video && Number.isFinite(video.duration) && video.duration > 0) {
+            targetTime = self.progress * video.duration;
+          }
+        }
+      });
       gsap.to('.building-caption', { y: -80, opacity: 0, scrollTrigger: { trigger: ref.current, start: '55% top', end: '75% top', scrub: true } });
     }, ref);
-    return () => ctx.revert();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      ctx.revert();
+    };
   }, []);
+
   return <section className="building-sequence" ref={ref}><div className="building-sticky"><video ref={film} className="building-film" src={heroFilm} muted playsInline preload="auto" aria-label="Scroll controlled Verona property film" onLoadedMetadata={e => { const trigger = ScrollTrigger.getById('building-film-scrub'); if (trigger && e.currentTarget.duration) e.currentTarget.currentTime = trigger.progress * e.currentTarget.duration; }} /><div className="building-wash" /><div className="building-caption"><Eyebrow light>Architecture, in harmony</Eyebrow><h2>Presence<br /><i>with purpose.</i></h2><p>A considered silhouette, rising gently<br />from an island of green.</p><div className="sequence-indicator"><span>01</span><i><b /></i><span>360°</span></div></div><div className="building-scroll-label">THE VERONA RESIDENCE&nbsp; · &nbsp;MADH ISLAND</div></div><div className="building-scroll-space" /></section>;
 }
 
@@ -151,13 +249,38 @@ function Footer() { return <footer className="footer"><a href="#top" className="
 export default function App() {
   const [scrollPct, setScrollPct] = useState(0);
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.15, smoothWheel: true, wheelMultiplier: .85 });
+    const lenis = new Lenis({ 
+      duration: 1.25, 
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true, 
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.5,
+    });
+    
     lenis.on('scroll', ScrollTrigger.update);
-    const tick = t => lenis.raf(t * 1000); gsap.ticker.add(tick); gsap.ticker.lagSmoothing(0);
-    const onScroll = () => setScrollPct(Math.min(100, Math.round(window.scrollY / (document.documentElement.scrollHeight - innerHeight) * 100)));
+    
+    let rafId;
+    function raf(time) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+    
+    const onScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalScroll > 0) {
+        setScrollPct(Math.min(100, Math.round((window.scrollY / totalScroll) * 100)));
+      }
+    };
+    
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { window.removeEventListener('scroll', onScroll); gsap.ticker.remove(tick); lenis.destroy(); };
+    return () => { 
+      window.removeEventListener('scroll', onScroll); 
+      cancelAnimationFrame(rafId);
+      lenis.destroy(); 
+    };
   }, []);
-  const scrollEnquiry = () => document.querySelector('#enquire')?.scrollIntoView({ behavior: 'smooth' });
-  return <><div className="scroll-progress" style={{ transform: `scaleX(${scrollPct / 100})` }} /><Navigation onEnquire={scrollEnquiry} /><main><Hero /><Manifesto /><BuildingSequence /><Residence /><RoomExplorer /><Amenities /><Location /><FloorPlan /><Gallery /><Enquiry /></main><Footer /><div className="mobile-bar"><a href="tel:+912240000000"><Phone size={15} />Call</a><a href="#enquire">Enquire <ArrowUpRight size={15} /></a></div></>;
+  
+  const handleEnquire = () => document.querySelector('#enquire')?.scrollIntoView({ behavior: 'smooth' });
+  return <><div className="scroll-progress" style={{ transform: `scaleX(${scrollPct / 100})` }} /><Navigation onEnquire={handleEnquire} /><main><Hero /><Manifesto /><BuildingSequence /><Residence /><RoomExplorer /><Amenities /><Location /><FloorPlan /><Gallery /><Enquiry /></main><Footer /><div className="mobile-bar"><a href="tel:+912240000000"><Phone size={15} />Call</a><a href="#enquire">Enquire <ArrowUpRight size={15} /></a></div></>;
 }
