@@ -1,11 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, Menu, X, Play, Plus, Minus, MapPin, Phone, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, Menu, X, Play, ChevronLeft, ChevronRight, Phone, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import heroFilm from './assets/Create_an_ultra_premium_photo.mp4';
+import LegacyExperience from './components/legacy/LegacyExperience';
+import './components/legacy/legacy.css';
 
 gsap.registerPlugin(ScrollTrigger);
+
+/* ── device check (evaluated once per component mount) ── */
+const isMobile = () => window.innerWidth <= 900 || 'ontouchstart' in window;
 
 const photos = {
   hero: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=2400&q=90',
@@ -21,69 +26,260 @@ const photos = {
 };
 
 const rooms = [
-  { name: 'Living room', note: 'A generous canvas for the rituals of everyday life.', image: photos.interior, no: '01' },
-  { name: 'Master bedroom', note: 'A quiet retreat, framed by the endless blue.', image: photos.bedroom, no: '02' },
-  { name: 'The kitchen', note: 'Made for gathering, finished for the senses.', image: photos.kitchen, no: '03' },
-  { name: 'Bath & wellness', note: 'Begin and end every day in a softer light.', image: photos.bath, no: '04' },
-  { name: 'Private deck', note: 'The horizon, reserved entirely for you.', image: photos.terrace, no: '05' },
+  {
+    name: 'Living Room',
+    subtitle: 'Great Room & Ocean Vista Lounge',
+    note: 'An expansive light-filled sanctuary engineered with 11’4” clear heights, framing unbroken 180° Arabian Sea panoramas.',
+    image: photos.interior,
+    no: '01',
+    specs: [
+      { label: 'Ceiling Height', value: '11 ft 4 in' },
+      { label: 'Glazing', value: 'Low-E acoustic double glass' },
+      { label: 'Flooring', value: 'Imported Botticino Italian marble' },
+      { label: 'Orientation', value: 'West-facing sunset corridor' },
+      { label: 'Ventilation', value: '100% natural cross-breeze airflow' },
+    ],
+    highlights: [
+      'Flush-threshold transition to private ocean verandah',
+      'Concealed Daikin VRV multi-zone climate system',
+      'Integrated architectural cove lighting and acoustic insulation',
+    ],
+    hotspots: [
+      { id: 'h1', x: 26, y: 38, title: 'Panoramic Ocean Glazing', desc: 'Floor-to-ceiling Low-E double glazing framing unbroken views of the Madh coastline.' },
+      { id: 'h2', x: 62, y: 74, title: 'Botticino Italian Marble', desc: 'Seamless book-matched Italian marble slabs throughout the grand living and dining foyer.' },
+      { id: 'h3', x: 80, y: 24, title: 'Acoustic Ceiling Architecture', desc: '11’4” clear volume with recessed perimeter slots for zero-draft ducted climate control.' },
+    ],
+  },
+  {
+    name: 'Master Bedroom',
+    subtitle: 'Private Sanctuary & Sunset Balcony',
+    note: 'A quiet retreat oriented to catch morning tranquility and evening sea breezes, with custom-fitted Italian wardrobes.',
+    image: photos.bedroom,
+    no: '02',
+    specs: [
+      { label: 'Area', value: '380 sq.ft. private suite' },
+      { label: 'Flooring', value: 'Engineered natural oak timber' },
+      { label: 'Wardrobe', value: 'Italian custom-fitted walk-in dressing' },
+      { label: 'Privacy', value: 'Sound-isolated acoustic perimeter walls' },
+    ],
+    highlights: [
+      'Private sea-facing sunrise balcony',
+      'Integrated smart ambient lighting moods',
+      'Dedicated dressing & vanity boudoir',
+    ],
+  },
+  {
+    name: 'The Kitchen',
+    subtitle: 'Chef-Grade Modular Gourmet Kitchen',
+    note: 'Ergonomically planned with quartz countertops, integrated European appliances, and a dedicated service utility quarter.',
+    image: photos.kitchen,
+    no: '03',
+    specs: [
+      { label: 'Countertops', value: 'Scratch-proof Caesarstone quartz' },
+      { label: 'Cabinetry', value: 'Soft-close anti-fingerprint matte lacquer' },
+      { label: 'Appliances', value: 'Miele/Siemens built-in oven & hob' },
+      { label: 'Utility', value: 'Separate service entry & utility balcony' },
+    ],
+    highlights: [
+      'Heavy-duty exhaust ducting with quiet inline motors',
+      'Dual-sink prep and wash zoning',
+      'Concealed dry-pantry storage',
+    ],
+  },
+  {
+    name: 'Bath & Wellness',
+    subtitle: 'Five-Fixture Spa Bathroom',
+    note: 'Hand-selected travertine and marble finishes with rain showers, freestanding soaking tubs, and Hansgrohe fixtures.',
+    image: photos.bath,
+    no: '04',
+    specs: [
+      { label: 'Fixtures', value: 'Hansgrohe Axor & Kohler Veil' },
+      { label: 'Surfaces', value: 'Full-height book-matched travertine' },
+      { label: 'Shower', value: 'Thermostatic ceiling rain shower' },
+      { label: 'Ventilation', value: 'Whisper-quiet multi-stage extraction' },
+    ],
+    highlights: [
+      'Freestanding soaking tub overlooking private garden niche',
+      'Anti-fog heated LED backlit vanity mirrors',
+      'Under-counter discreet storage',
+    ],
+  },
+  {
+    name: 'Private Deck',
+    subtitle: 'Wraparound Ocean & Garden Verandah',
+    note: 'Seamless outdoor extension of the living space with weather-resistant hardwood decking and frameless glass balustrades.',
+    image: photos.terrace,
+    no: '05',
+    specs: [
+      { label: 'Depth', value: 'Up to 8 ft wide continuous deck' },
+      { label: 'Railing', value: 'Frameless laminated safety glass' },
+      { label: 'Decking', value: 'UV-treated weather-sealed teak wood' },
+      { label: 'Drainage', value: 'Concealed channel drainage system' },
+    ],
+    highlights: [
+      'Zero-level threshold for smooth indoor-outdoor flow',
+      'Integrated planter troughs with drip irrigation',
+      'Exterior architectural accent wall sconces',
+    ],
+  },
 ];
 
-const amenities = [
-  ['Club Exotica', photos.interior], ['The infinity pool', photos.pool], ['Wellness studio', photos.room],
-  ['The private lounge', photos.terrace], ['Courts & open lawns', photos.hero],
+const AMENITY_DATA = [
+  {
+    name: 'Club Exotica',
+    subtitle: 'Grand Clubhouse & Social Hub',
+    image: photos.interior,
+    tag: '01 · CLUB EXOTICA',
+    desc: 'Sprawling private clubhouse with curated social lounges, indoor games pavilion, and concierge services.',
+    specs: [
+      { label: 'Scale', value: 'Multi-Level Hub' },
+      { label: 'Vibe', value: 'Private Club' },
+    ],
+  },
+  {
+    name: 'The Infinity Pool',
+    subtitle: 'Ocean-Facing Horizon Waters',
+    image: photos.pool,
+    tag: '02 · AQUA SANCTUARY',
+    desc: 'Cascading temperature-controlled infinity pool reflecting Arabian Sea sunsets and coastal palm breezes.',
+    specs: [
+      { label: 'View', value: 'Arabian Sea' },
+      { label: 'Feature', value: 'Sun Deck & Cabanas' },
+    ],
+  },
+  {
+    name: 'Wellness Studio',
+    subtitle: 'Mind, Body & Fitness Pavilion',
+    image: photos.room,
+    tag: '03 · WELLNESS & SPA',
+    desc: 'State-of-the-art gymnasium, open-air yoga decks, and holistic rejuvenation treatment suites.',
+    specs: [
+      { label: 'Equipment', value: 'Technogym Suites' },
+      { label: 'Decks', value: 'Open-Air Yoga' },
+    ],
+  },
+  {
+    name: 'The Private Lounge',
+    subtitle: 'Exclusive Resident Sanctuary',
+    image: photos.terrace,
+    tag: '04 · SKY LOUNGE',
+    desc: 'Private dining banquet rooms, cigar & whisky salon, and elevated screening rooms for bespoke entertainment.',
+    specs: [
+      { label: 'Setting', value: 'Intimate Luxury' },
+      { label: 'Access', value: 'Resident Exclusive' },
+    ],
+  },
+  {
+    name: 'Courts & Open Lawns',
+    subtitle: 'Outdoor Sporting & Flora',
+    image: photos.hero,
+    tag: '05 · ACTIVE GROUNDS',
+    desc: 'Floodlit multi-sport courts, manicured jogging tracks, and 80% lush green open spaces across 32 acres.',
+    specs: [
+      { label: 'Grounds', value: '32-Acre Estate' },
+      { label: 'Greens', value: '80% Open Flora' },
+    ],
+  },
 ];
 
-function Eyebrow({ children, light = false }) { return <div className={`eyebrow ${light ? 'eyebrow-light' : ''}`}><span />{children}</div>; }
-function Image({ src, alt = '', className = '' }) { return <img src={src} alt={alt} className={className} loading="lazy" />; }
+function Eyebrow({ children, light = false }) {
+  return <div className={`eyebrow ${light ? 'eyebrow-light' : ''}`}><span />{children}</div>;
+}
+function Img({ src, alt = '', className = '' }) {
+  return <img src={src} alt={alt} className={className} loading="lazy" />;
+}
 
+/* ─────────────────────────────────────────────────────────────────────────
+   VIDEO SCRUBBER
+   Attaches to the GSAP ticker (the same RAF Lenis uses).
+   No separate requestAnimationFrame — zero duplicate loops.
+   Works identically on desktop and mobile devices.
+───────────────────────────────────────────────────────────────────────── */
+function makeVideoScrubber(video) {
+  let target = 0;
+  let busy = false;
+  let seekTimer = null;
+
+  function tick() {
+    if (!video || !video.duration || !Number.isFinite(video.duration)) return;
+
+    /* Always keep playback paused — scrubbing controls frame position */
+    if (video.playbackRate !== 0) video.playbackRate = 0;
+
+    if (busy) return;
+    const delta = target - video.currentTime;
+    if (Math.abs(delta) < 0.012) return;
+    busy = true;
+    const next = Math.max(0, Math.min(video.duration, video.currentTime + delta * 0.38));
+    try {
+      if (video.fastSeek) video.fastSeek(next);
+      else video.currentTime = next;
+    } catch (_) {
+      busy = false;
+    }
+
+    clearTimeout(seekTimer);
+    seekTimer = setTimeout(() => {
+      busy = false;
+    }, 70);
+
+    video.onseeked = () => {
+      clearTimeout(seekTimer);
+      video.playbackRate = 0;
+      busy = false;
+    };
+  }
+
+  gsap.ticker.add(tick);
+  return {
+    setTarget(t) { target = t; },
+    destroy() {
+      gsap.ticker.remove(tick);
+      clearTimeout(seekTimer);
+      if (video) video.onseeked = null;
+    },
+  };
+}
+
+/* ─── Navigation ─── */
 function Navigation({ onEnquire }) {
   const [open, setOpen] = useState(false);
-  const [heroMotionComplete, setHeroMotionComplete] = useState(false);
-  const links = [['Experience', '#experience'], ['Residences', '#residences'], ['Amenities', '#amenities'], ['Location', '#location'], ['Gallery', '#gallery']];
-  
-  useEffect(() => { 
-    document.body.classList.toggle('menu-open', open); 
-    return () => document.body.classList.remove('menu-open'); 
+  const [scrolled, setScrolled] = useState(false);
+  const links = [
+    ['Experience', '#experience'], ['Legacy', '#legacy'], ['Residences', '#residences'],
+    ['Amenities', '#amenities'],
+  ];
+
+  useEffect(() => {
+    document.body.classList.toggle('menu-open', open);
+    return () => document.body.classList.remove('menu-open');
   }, [open]);
 
-  useEffect(() => { 
-    const updateHeaderState = () => {
-      const heroTrigger = ScrollTrigger.getById('hero-film-scrub');
-      if (heroTrigger && heroTrigger.end) {
-        setHeroMotionComplete(window.scrollY >= (heroTrigger.end - 60));
-      } else {
-        setHeroMotionComplete(window.scrollY > window.innerHeight * 2.1);
-      }
-    }; 
-    updateHeaderState(); 
-    window.addEventListener('scroll', updateHeaderState, { passive: true }); 
-    ScrollTrigger.addEventListener('refresh', updateHeaderState);
-    return () => {
-      window.removeEventListener('scroll', updateHeaderState);
-      ScrollTrigger.removeEventListener('refresh', updateHeaderState);
-    };
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 80);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
   }, []);
 
   return <>
-    <header className={`nav ${heroMotionComplete ? 'hero-complete' : 'hero-motion'}`}>
+    <header className={`nav ${scrolled ? 'scrolled' : ''}`}>
       <a className="brand" href="#top" aria-label="Verona home">
         <span className="brand-mark">V</span>
         <span><b>VERONA</b><small>RAHEJA EXOTICA · MUMBAI</small></span>
       </a>
-      <nav className="nav-links">
-        {links.map(([label, href]) => <a key={label} href={href}>{label}</a>)}
-      </nav>
+      <nav className="nav-links">{links.map(([l, h]) => <a key={l} href={h}>{l}</a>)}</nav>
       <button className="nav-cta" onClick={onEnquire}>Enquire <ArrowUpRight size={14} /></button>
-      <button className="menu-toggle" onClick={() => setOpen(!open)} aria-label={open ? 'Close menu' : 'Open menu'}>
-        {open ? <X /> : <Menu />}
+      <button className="menu-toggle" onClick={() => setOpen(v => !v)} aria-label={open ? 'Close' : 'Open menu'}>
+        {open ? <span style={{ fontSize: 22, lineHeight: 1 }}>✕</span> : <span style={{ fontSize: 22, lineHeight: 1 }}>☰</span>}
       </button>
     </header>
     <div className={`menu-overlay ${open ? 'is-open' : ''}`} aria-hidden={!open}>
       <div className="menu-overlay-inner">
         <Eyebrow>Discover Verona</Eyebrow>
-        {links.map(([label, href], i) => (
-          <a key={label} href={href} onClick={() => setOpen(false)}>
-            <span>0{i + 1}</span>{label}<ArrowUpRight />
+        {links.map(([l, h], i) => (
+          <a key={l} href={h} onClick={() => setOpen(false)}>
+            <span>0{i + 1}</span>{l}<ArrowUpRight />
           </a>
         ))}
         <p>Madh Island · Mumbai</p>
@@ -92,203 +288,646 @@ function Navigation({ onEnquire }) {
   </>;
 }
 
+/* ─── Hero Phase Data ─── */
+const heroPhases = [
+  {
+    phase: 0,
+    tag: 'PHASE 01 · THE ARRIVAL',
+    eyebrow: 'Raheja Exotica presents',
+    title: 'An island of possibilities.',
+    sub: 'A rare address. A world apart. A life shaped by the sea.',
+    pills: ['19°08\' N · Madh Island', '32-Acre Estate', 'Gated Island Haven'],
+    hasCta: true,
+  },
+  {
+    phase: 1,
+    tag: 'PHASE 02 · MASTER SANCTUARY',
+    eyebrow: 'Private Ocean Suite',
+    title: 'Awaken to unbroken blue.',
+    sub: 'Floor-to-ceiling sea breeze drapery, Italian marble spa bath, and private sunrise views.',
+    pills: ['11\' 4" Clear Volume', 'Cross-Ventilated Breeze', 'En-Suite Ocean Bath'],
+    hasCta: false,
+  },
+  {
+    phase: 2,
+    tag: 'PHASE 03 · SUNSET VERANDAH',
+    eyebrow: 'Private Outdoor Living',
+    title: 'The horizon, reserved for you.',
+    sub: 'Private teak sun deck & infinity plunge terrace framing sunset waters over the Arabian Sea.',
+    pills: ['180° Panoramic Horizon', 'UV-Sealed Teak Deck', 'Infinity Plunge Pool'],
+    hasCta: false,
+  },
+  {
+    phase: 3,
+    tag: 'PHASE 04 · THE RESORT OASIS',
+    eyebrow: 'Club Exotica & Grounds',
+    title: 'Resort living, every single day.',
+    sub: 'Lush tropical grounds, cascading swimming pools, and 60+ curated club amenities.',
+    pills: ['32 Acres of Land', '60+ Club Amenities', '80% Open Greens'],
+    hasCta: false,
+  },
+];
+
+/* ─── Hero ─── */
 function Hero() {
   const ref = useRef(null);
   const film = useRef(null);
-  useEffect(() => {
-    let animationFrameId;
-    let targetTime = 0;
-    const video = film.current;
+  const [activePhase, setActivePhase] = useState(0);
 
-    const renderLoop = () => {
-      if (video && Number.isFinite(video.duration) && video.duration > 0) {
-        const diff = Math.abs(targetTime - video.currentTime);
-        if (diff > 0.04) {
-          if (typeof video.fastSeek === 'function') {
-            video.fastSeek(targetTime);
-          } else {
-            video.currentTime = targetTime;
-          }
-        }
-      }
-      animationFrameId = requestAnimationFrame(renderLoop);
-    };
-    animationFrameId = requestAnimationFrame(renderLoop);
+  useEffect(() => {
+    const video = film.current;
+    let scrubber = null;
+
+    if (video) {
+      video.loop = false;
+      video.playbackRate = 0;
+      video.play().then(() => {
+        video.playbackRate = 0;
+      }).catch(() => {});
+      scrubber = makeVideoScrubber(video);
+    }
 
     const ctx = gsap.context(() => {
-      gsap.from('.hero-copy > *', { y: 35, opacity: 0, duration: 1.2, stagger: .13, ease: 'power3.out', delay: .25 });
-      const story = gsap.timeline({
+      // Initial entrance
+      gsap.from('.hero-phase-0 > *', {
+        y: 40, opacity: 0, duration: 1.1, stagger: 0.12,
+        ease: 'power3.out', delay: 0.2,
+      });
+
+      const tl = gsap.timeline({
         scrollTrigger: {
           id: 'hero-film-scrub',
           trigger: ref.current,
           start: 'top top',
-          end: '+=200%',
+          end: '+=280%',
           pin: true,
-          scrub: 0.5,
+          pinSpacing: true,
+          scrub: 1.2,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onUpdate: self => {
-            if (video && Number.isFinite(video.duration) && video.duration > 0) {
-              targetTime = self.progress * video.duration;
+          onUpdate(self) {
+            if (scrubber && video && video.duration) {
+              scrubber.setTarget(self.progress * video.duration);
             }
-          }
-        }
+            // Update active phase indicator
+            const p = self.progress;
+            if (p < 0.25) setActivePhase(0);
+            else if (p < 0.52) setActivePhase(1);
+            else if (p < 0.78) setActivePhase(2);
+            else setActivePhase(3);
+          },
+          onLeave() {
+            if (scrubber && video && video.duration) {
+              scrubber.setTarget(video.duration);
+            }
+          },
+          onEnterBack() {},
+        },
       });
-      story.to('.hero-copy', { y: -48, autoAlpha: 0, duration: .2, ease: 'none' }, .45)
-        .fromTo('.hero-stats > div', { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .11, stagger: .065, ease: 'none' }, .48)
-        .to('.hero-scroll', { autoAlpha: 0, duration: .08, ease: 'none' }, .91);
+
+      // Phase 0 fade out (0.18 - 0.25)
+      tl.to('.hero-phase-0', { y: -45, autoAlpha: 0, duration: 0.08, ease: 'power2.in' }, 0.18)
+
+      // Phase 1 (Master Bedroom) fade in (0.28) and fade out (0.48)
+      tl.fromTo('.hero-phase-1',
+        { y: 45, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power2.out' }, 0.28)
+      tl.to('.hero-phase-1', { y: -45, autoAlpha: 0, duration: 0.08, ease: 'power2.in' }, 0.48)
+
+      // Phase 2 (Sun Deck & Plunge Pool) fade in (0.54) and fade out (0.74)
+      tl.fromTo('.hero-phase-2',
+        { y: 45, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power2.out' }, 0.54)
+      tl.to('.hero-phase-2', { y: -45, autoAlpha: 0, duration: 0.08, ease: 'power2.in' }, 0.74)
+
+      // Phase 3 (Resort Oasis Pool) fade in (0.80)
+      tl.fromTo('.hero-phase-3',
+        { y: 45, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power2.out' }, 0.80)
+
+      // Stats subtle lift
+      tl.fromTo('.hero-stats > div',
+        { y: 15, autoAlpha: 0.7 },
+        { y: 0, autoAlpha: 1, duration: 0.1, stagger: 0.05, ease: 'none' }, 0.3)
+      tl.to('.hero-scroll', { autoAlpha: 0, duration: 0.08, ease: 'none' }, 0.88);
     }, ref);
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      ctx.revert();
-    };
+    return () => { scrubber?.destroy(); ctx.revert(); };
   }, []);
 
-  return <section className="hero" id="top" ref={ref}>
-    <video ref={film} className="hero-video" src={heroFilm} muted playsInline preload="auto" aria-label="Cinematic Verona property film" onLoadedMetadata={e => { const trigger = ScrollTrigger.getById('hero-film-scrub'); if (trigger && e.currentTarget.duration) e.currentTarget.currentTime = trigger.progress * e.currentTarget.duration; }} /><div className="hero-shade" />
-    <div className="hero-top"><span>19°08' N&nbsp; 72°47' E</span><span>MADH ISLAND, MUMBAI</span></div>
-    <div className="hero-copy"><Eyebrow light>Raheja Exotica presents</Eyebrow><h1>An island<br /><i>of possibilities.</i></h1><p className="hero-sub">A rare address. A world apart.<br />A life shaped by the sea.</p><a href="#experience" className="round-link"><span>Discover Verona</span><ArrowDownRight size={19} /></a></div>
-    <div className="hero-bottom"><span className="hero-scroll"><ArrowDown size={15} /> Scroll to explore</span><div className="hero-stats"><div><b>32</b><span>ACRES OF LAND</span></div><div><b>60<span>+</span></b><span>AMENITIES</span></div><div><b>80<span>%</span></b><span>OPEN GREEN</span></div></div><span className="hero-index">01 / 10</span></div>
-    <div className="hero-vertical">A NEW PERSPECTIVE ON ISLAND LIVING</div>
-  </section>;
+  const onMeta = (e) => {
+    const trigger = ScrollTrigger.getById('hero-film-scrub');
+    if (trigger && e.currentTarget.duration)
+      e.currentTarget.currentTime = trigger.progress * e.currentTarget.duration;
+  };
+
+  return (
+    <section className="hero" id="top" ref={ref}>
+      <video ref={film} className="hero-video" src={heroFilm}
+        muted playsInline preload="auto"
+        aria-label="Cinematic Verona property film"
+        onLoadedMetadata={onMeta} />
+      <div className="hero-shade" />
+
+      <div className="hero-top">
+        <span>19°08' N&nbsp; 72°47' E</span>
+        <span>MADH ISLAND, MUMBAI</span>
+      </div>
+
+      {/* 4 Cinematic Hero Phases Overlays */}
+      <div className="hero-phases-container">
+        {heroPhases.map((item, idx) => (
+          <div key={item.phase} className={`hero-copy hero-phase hero-phase-${idx}`}>
+            <span className="hero-phase-tag">{item.tag}</span>
+            <Eyebrow light>{item.eyebrow}</Eyebrow>
+            <h1>
+              {item.title.split(' ').map((w, i, arr) => {
+                if (i >= arr.length - 2) return <i key={i}> {w}</i>;
+                return (i === 0 ? '' : ' ') + w;
+              })}
+            </h1>
+            <p className="hero-sub">{item.sub}</p>
+            
+            <div className="hero-phase-pills">
+              {item.pills.map((pill, pi) => (
+                <span key={pi} className="hero-phase-pill">{pill}</span>
+              ))}
+            </div>
+
+            {item.hasCta && (
+              <a href="#experience" className="round-link" style={{ marginTop: 22 }}>
+                <span>Discover Verona</span><ArrowDownRight size={19} />
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Phase Navigator Indicators */}
+      <div className="hero-phase-nav">
+        {heroPhases.map((hp, i) => (
+          <div
+            key={i}
+            className={`hero-phase-indicator ${i === activePhase ? 'is-active' : ''}`}
+          >
+            <span className="phase-dot" />
+            <span className="phase-name">{hp.tag.split('·')[1]?.trim() || `0${i+1}`}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="hero-bottom">
+        <span className="hero-scroll"><ArrowDown size={15} /> Scroll to explore</span>
+        <div className="hero-stats">
+          <div><b>32</b><span>ACRES OF LAND</span></div>
+          <div><b>60<span>+</span></b><span>AMENITIES</span></div>
+          <div><b>80<span>%</span></b><span>OPEN GREEN</span></div>
+        </div>
+        <span className="hero-index">0{activePhase + 1} / 04</span>
+      </div>
+
+      <div className="hero-vertical">A NEW PERSPECTIVE ON ISLAND LIVING</div>
+    </section>
+  );
 }
 
+/* ─── Manifesto ─── */
 function Manifesto() {
-  return <section className="manifesto section-pad" id="experience"><div className="manifesto-meta"><Eyebrow>The Verona perspective</Eyebrow><span>01 — A life, more expansive</span></div><div className="manifesto-main"><h2>Some places<br />change your <i>view.</i><br />This one changes<br />your <i>everyday.</i></h2><p>Set on the quiet shores of Madh Island, Verona brings the rarest luxuries together: room to breathe, space to belong, and the sea as your constant.</p></div><div className="manifesto-image"><Image src={photos.tower} alt="Modern residence in natural light" /><div className="image-caption"><span>THE ART OF ARRIVING</span><span>01 / 03</span></div></div></section>;
+  return (
+    <section className="manifesto section-pad" id="experience">
+      <div className="manifesto-meta"><Eyebrow>The Verona perspective</Eyebrow><span>01 — A life, more expansive</span></div>
+      <div className="manifesto-main">
+        <h2>Some places<br />change your <i>view.</i><br />This one changes<br />your <i>everyday.</i></h2>
+        <p>Set on the quiet shores of Madh Island, Verona brings the rarest luxuries together: room to breathe, space to belong, and the sea as your constant.</p>
+      </div>
+      <div className="manifesto-image">
+        <Img src={photos.tower} alt="Modern residence in natural light" />
+        <div className="image-caption"><span>THE ART OF ARRIVING</span><span>01 / 03</span></div>
+      </div>
+    </section>
+  );
 }
 
-function BuildingSequence() {
-  const ref = useRef(null); 
-  const film = useRef(null);
-  useEffect(() => {
-    let animationFrameId;
-    let targetTime = 0;
-    const video = film.current;
+/* ─── Room Analysis Modal ─── */
+function RoomAnalysisModal({ room, onClose }) {
+  if (!room) return null;
+  return (
+    <div className="room-modal-backdrop" onClick={onClose}>
+      <div className="room-modal-card" onClick={e => e.stopPropagation()}>
+        <div className="room-modal-header">
+          <div>
+            <span className="room-modal-tag">ARCHITECTURAL SPECIFICATION · NO. {room.no}</span>
+            <h2>{room.name}</h2>
+            {room.subtitle && <p className="room-modal-sub">{room.subtitle}</p>}
+          </div>
+          <button className="room-modal-close" onClick={onClose} aria-label="Close modal">✕</button>
+        </div>
 
-    const renderLoop = () => {
-      if (video && Number.isFinite(video.duration) && video.duration > 0) {
-        const diff = Math.abs(targetTime - video.currentTime);
-        if (diff > 0.04) {
-          if (typeof video.fastSeek === 'function') {
-            video.fastSeek(targetTime);
-          } else {
-            video.currentTime = targetTime;
-          }
-        }
-      }
-      animationFrameId = requestAnimationFrame(renderLoop);
-    };
-    animationFrameId = requestAnimationFrame(renderLoop);
+        <div className="room-modal-body">
+          <div className="room-modal-media">
+            <Img src={room.image} alt={room.name} />
+            <div className="room-modal-badge">19°08' N · MADH ISLAND</div>
+          </div>
+          <div className="room-modal-details">
+            <div className="room-modal-section">
+              <h4>Spatial Analysis & Overview</h4>
+              <p>{room.note}</p>
+            </div>
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        id: 'building-film-scrub',
-        trigger: ref.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.5,
-        onUpdate: self => {
-          if (video && Number.isFinite(video.duration) && video.duration > 0) {
-            targetTime = self.progress * video.duration;
-          }
-        }
-      });
-      gsap.to('.building-caption', { y: -80, opacity: 0, scrollTrigger: { trigger: ref.current, start: '55% top', end: '75% top', scrub: true } });
-    }, ref);
+            {room.specs && (
+              <div className="room-modal-specs-grid">
+                {room.specs.map(s => (
+                  <div className="room-modal-spec-item" key={s.label}>
+                    <span className="spec-label">{s.label}</span>
+                    <strong className="spec-value">{s.value}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      ctx.revert();
-    };
-  }, []);
+            {room.highlights && (
+              <div className="room-modal-highlights">
+                <h4>Design & Material Highlights</h4>
+                <ul>
+                  {room.highlights.map((h, i) => (
+                    <li key={i}>{h}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
 
-  return <section className="building-sequence" ref={ref}><div className="building-sticky"><video ref={film} className="building-film" src={heroFilm} muted playsInline preload="auto" aria-label="Scroll controlled Verona property film" onLoadedMetadata={e => { const trigger = ScrollTrigger.getById('building-film-scrub'); if (trigger && e.currentTarget.duration) e.currentTarget.currentTime = trigger.progress * e.currentTarget.duration; }} /><div className="building-wash" /><div className="building-caption"><Eyebrow light>Architecture, in harmony</Eyebrow><h2>Presence<br /><i>with purpose.</i></h2><p>A considered silhouette, rising gently<br />from an island of green.</p><div className="sequence-indicator"><span>01</span><i><b /></i><span>360°</span></div></div><div className="building-scroll-label">THE VERONA RESIDENCE&nbsp; · &nbsp;MADH ISLAND</div></div><div className="building-scroll-space" /></section>;
+        <div className="room-modal-footer">
+          <span>RAHEJA EXOTICA · VERONA RESIDENCES</span>
+          <button className="room-modal-action" onClick={onClose}>Close Analysis</button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
+/* ─── Residence (Living Room Feature) ─── */
 function Residence() {
-  return <section className="residence section-pad" id="residences"><div className="residence-head"><div><Eyebrow>Step inside</Eyebrow><h2>A residence<br /><i>defined by light.</i></h2></div><p>Generous rooms open to the horizon. Thoughtful details make each day feel considered, and every return feel like an arrival.</p></div><div className="residence-visual"><Image src={photos.interior} alt="Sunlit living room opening to the ocean" /><div className="residence-label"><span>THE VERONA RESIDENCE</span><span>SEA-FACING LIVING</span></div><div className="residence-play"><Play size={14} fill="currentColor" /> <span>Explore the residence</span></div></div><div className="residence-foot"><span>01 — OPENNESS</span><span>Living, with the horizon in view.</span><a href="#rooms">Explore the rooms <ArrowRight size={15} /></a></div></section>;
+  const [activeHotspot, setActiveHotspot] = useState(null);
+  const [modalRoom, setModalRoom] = useState(null);
+  const livingRoomData = rooms[0];
+
+  return (
+    <section className="residence section-pad" id="residences">
+      <div className="residence-head">
+        <div>
+          <Eyebrow>Step inside</Eyebrow>
+          <h2>A residence<br /><i>defined by light.</i></h2>
+        </div>
+        <p>Generous rooms open to the horizon. Thoughtful details make each day feel considered, and every return feel like an arrival.</p>
+      </div>
+
+      <div className="residence-visual">
+        <Img src={photos.interior} alt="Sunlit living room opening to the ocean" />
+        <div className="residence-label">
+          <span>THE VERONA RESIDENCE · NO. 01</span>
+          <span>LIVING ROOM · 180° SEA-FACING</span>
+        </div>
+
+        {/* Interactive Living Room Hotspots */}
+        {livingRoomData.hotspots?.map((spot) => (
+          <div
+            key={spot.id}
+            className={`residence-hotspot ${activeHotspot === spot.id ? 'is-active' : ''}`}
+            style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+            onClick={() => setActiveHotspot(activeHotspot === spot.id ? null : spot.id)}
+          >
+            <button className="hotspot-trigger" aria-label={spot.title}>
+              <span className="hotspot-pulse" />
+              <span className="hotspot-dot" />
+            </button>
+            <div className="hotspot-card" onClick={e => e.stopPropagation()}>
+              <div className="hotspot-title">{spot.title}</div>
+              <p className="hotspot-desc">{spot.desc}</p>
+            </div>
+          </div>
+        ))}
+
+        <button className="residence-play" onClick={() => setModalRoom(livingRoomData)}>
+          <Play size={14} fill="currentColor" /> <span>Analyze Living Room</span>
+        </button>
+      </div>
+
+      {/* Real-time Architectural Living Room Analytics Grid */}
+      <div className="residence-analytics-bar">
+        <div className="residence-analytic-item">
+          <span className="residence-analytic-num">11’ 4”</span>
+          <span className="residence-analytic-label">Clear Ceiling Height</span>
+        </div>
+        <div className="residence-analytic-item">
+          <span className="residence-analytic-num">680 <small>SQ.FT.</small></span>
+          <span className="residence-analytic-label">Great Room Volume</span>
+        </div>
+        <div className="residence-analytic-item">
+          <span className="residence-analytic-num">180°</span>
+          <span className="residence-analytic-label">Arabian Sea Panorama</span>
+        </div>
+        <div className="residence-analytic-item">
+          <span className="residence-analytic-num">100%</span>
+          <span className="residence-analytic-label">Natural Cross-Breeze</span>
+        </div>
+      </div>
+
+      <div className="residence-foot">
+        <span>01 — OPENNESS</span>
+        <span>Living room, with the horizon in view.</span>
+        <a href="#rooms">Explore all rooms <ArrowRight size={15} /></a>
+      </div>
+
+      {modalRoom && <RoomAnalysisModal room={modalRoom} onClose={() => setModalRoom(null)} />}
+    </section>
+  );
 }
 
+/* ─── RoomExplorer (Sheryians-Style Showcase) ─── */
 function RoomExplorer() {
-  const [active, setActive] = useState(0); const section = useRef(null); const track = useRef(null);
+  const [active, setActive] = useState(0);
+  const [modalRoom, setModalRoom] = useState(null);
+  const section = useRef(null);
+  const track = useRef(null);
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       const cards = gsap.utils.toArray('.room-card');
-      gsap.to(track.current, { x: () => -(track.current.scrollWidth - window.innerWidth), ease: 'none', scrollTrigger: { trigger: section.current, start: 'top top', end: () => `+=${track.current.scrollWidth - window.innerWidth}`, scrub: 1, pin: true, invalidateOnRefresh: true, onUpdate: self => setActive(Math.min(cards.length - 1, Math.floor(self.progress * cards.length))) } });
+      gsap.to(track.current, {
+        x: () => -(track.current.scrollWidth - window.innerWidth),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section.current,
+          start: 'top top',
+          end: () => `+=${track.current.scrollWidth - window.innerWidth}`,
+          scrub: 1.2,
+          pin: true,
+          pinSpacing: true,
+          invalidateOnRefresh: true,
+          onUpdate: self => setActive(Math.min(cards.length - 1, Math.floor(self.progress * cards.length))),
+        },
+      });
     }, section);
     return () => ctx.revert();
   }, []);
-  return <section className="rooms-section" id="rooms" ref={section}><div className="rooms-head"><Eyebrow>Space to make your own</Eyebrow><span>02 — The residences</span><div className="rooms-progress">{String(active + 1).padStart(2, '0')} <i /> 05</div></div><div className="rooms-track" ref={track}>{rooms.map((room, i) => <article className={`room-card ${i === active ? 'active' : ''}`} key={room.name}><div className="room-image"><Image src={room.image} alt={room.name} /><span className="room-number">{room.no}</span></div><div className="room-info"><div><h3>{room.name}</h3><p>{room.note}</p></div><ArrowUpRight size={19} /></div></article>)}</div><div className="rooms-footer"><span>SCROLL TO MOVE THROUGH THE RESIDENCE</span><ArrowRight size={17} /></div></section>;
+
+  return (
+    <section className="rooms-section" id="rooms" ref={section}>
+      <div className="rooms-head">
+        <div>
+          <Eyebrow light>Space to make your own</Eyebrow>
+          <span className="rooms-subhead">02 — The residences architectural exploration</span>
+        </div>
+        <div className="rooms-progress">{String(active + 1).padStart(2, '0')} <i /> 05</div>
+      </div>
+
+      <div className="rooms-track" ref={track}>
+        {rooms.map((room, i) => (
+          <article
+            className={`room-card sheryians-card ${i === active ? 'active' : ''}`}
+            key={room.name}
+            onClick={() => setModalRoom(room)}
+          >
+            <div className="sheryians-card-media">
+              <Img src={room.image} alt={room.name} />
+              <div className="sheryians-card-overlay" />
+            </div>
+
+            {/* Top Controls: Badge + Circular Floating Action */}
+            <div className="sheryians-card-top">
+              <span className="sheryians-tag">
+                <Sparkles size={11} /> {room.subtitle?.split('&')[0]?.trim() || `Residence ${room.no}`}
+              </span>
+              <div className="sheryians-circle-btn" aria-label={`Inspect ${room.name}`}>
+                <ArrowUpRight size={18} className="sheryians-arrow" />
+              </div>
+            </div>
+
+            {/* Bottom Content Floating inside the Card */}
+            <div className="sheryians-card-bottom">
+              <div className="sheryians-room-index">0{room.no} / 05 · 19°08' N SEA CORRIDOR</div>
+              <h3 className="sheryians-title">{room.name}</h3>
+              <p className="sheryians-desc">{room.note}</p>
+
+              {room.specs && (
+                <div className="sheryians-pills-row">
+                  {room.specs.slice(0, 3).map(s => (
+                    <span key={s.label} className="sheryians-spec-pill">
+                      <b>{s.label}:</b> {s.value}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="rooms-footer">
+        <span>SCROLL TO MOVE THROUGH THE RESIDENCE · TAP ANY CARD TO INSPECT</span>
+        <ArrowRight size={17} />
+      </div>
+
+      {modalRoom && <RoomAnalysisModal room={modalRoom} onClose={() => setModalRoom(null)} />}
+    </section>
+  );
 }
 
+/* ─── Amenities (Sheryians-Style Showcase) ─── */
 function Amenities() {
-  const section = useRef(null); const track = useRef(null);
+  const [active, setActive] = useState(0);
+  const section = useRef(null);
+  const track = useRef(null);
+
   useEffect(() => {
-    const ctx = gsap.context(() => gsap.to(track.current, { x: () => -(track.current.scrollWidth - window.innerWidth), ease: 'none', scrollTrigger: { trigger: section.current, start: 'top top', end: () => `+=${track.current.scrollWidth - window.innerWidth}`, scrub: 1, pin: true, invalidateOnRefresh: true } }), section);
+    const ctx = gsap.context(() => {
+      const cards = gsap.utils.toArray('.amenity-card');
+      gsap.to(track.current, {
+        x: () => -(track.current.scrollWidth - window.innerWidth),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section.current,
+          start: 'top top',
+          end: () => `+=${track.current.scrollWidth - window.innerWidth}`,
+          scrub: 1.2,
+          pin: true,
+          pinSpacing: true,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const idx = Math.min(cards.length - 1, Math.floor(self.progress * cards.length));
+            setActive(idx);
+          },
+        },
+      });
+    }, section);
     return () => ctx.revert();
   }, []);
-  return <section className="amenities" id="amenities" ref={section}><div className="amenity-intro"><Eyebrow light>Beyond the expected</Eyebrow><h2>Room for<br /><i>every version</i><br />of you.</h2><p>At Verona, the everyday finds new ways to surprise.</p><span>03 — THE CLUB LIFE</span></div><div className="amenities-track" ref={track}>{amenities.map(([name, src], i) => <article className="amenity-card" key={name}><Image src={src} alt={name} /><div className="amenity-overlay" /><div className="amenity-number">0{i + 1} / 05</div><div className="amenity-title"><span>{name}</span><ArrowUpRight size={17} /></div></article>)}</div><div className="amenity-scroll">SCROLL TO DISCOVER <ArrowRight size={15} /></div></section>;
+
+  return (
+    <section className="amenities-section" id="amenities" ref={section}>
+      <div className="amenities-head">
+        <div>
+          <Eyebrow light>Beyond the expected</Eyebrow>
+          <span className="amenities-subhead">03 — 60+ Resort-Style Club & Island Amenities</span>
+        </div>
+        <div className="amenities-progress">{String(active + 1).padStart(2, '0')} <i /> 05</div>
+      </div>
+
+      <div className="amenities-track" ref={track}>
+        {AMENITY_DATA.map((item, i) => (
+          <article
+            className={`amenity-card sheryians-card ${i === active ? 'active' : ''}`}
+            key={item.name}
+          >
+            <div className="sheryians-card-media">
+              <Img src={item.image} alt={item.name} />
+              <div className="sheryians-card-overlay" />
+            </div>
+
+            <div className="sheryians-card-top">
+              <span className="sheryians-tag">
+                <Sparkles size={11} /> {item.tag}
+              </span>
+              <div className="sheryians-circle-btn" aria-label={item.name}>
+                <ArrowUpRight size={18} className="sheryians-arrow" />
+              </div>
+            </div>
+
+            <div className="sheryians-card-bottom">
+              <span className="sheryians-room-index">AMENITY 0{i + 1} / 05 · MADH ISLAND</span>
+              <h3 className="sheryians-title">{item.name}</h3>
+              <p className="sheryians-desc">{item.desc}</p>
+              <div className="sheryians-pills-row">
+                {item.specs.map((s) => (
+                  <span key={s.label} className="sheryians-spec-pill">
+                    <b>{s.label}:</b> {s.value}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="amenities-footer">
+        <span>SCROLL TO EXPLORE 60+ CLUB AMENITIES · 32-ACRE RESORT LIVING</span>
+        <ArrowRight size={17} />
+      </div>
+    </section>
+  );
 }
 
-function Location() {
-  const [selected, setSelected] = useState('Verona');
-  const places = [{ name: 'Verona', x: 52, y: 27, time: 'YOU ARE HERE', kind: 'home' }, { name: 'Versova', x: 24, y: 49, time: 'FERRY · 10 MIN', kind: 'current' }, { name: 'Bandra', x: 77, y: 51, time: 'BY ROAD · 45 MIN', kind: 'current' }, { name: 'BKC', x: 76, y: 27, time: 'BY ROAD · 55 MIN', kind: 'current' }, { name: 'Airport', x: 32, y: 76, time: 'BY ROAD · 50 MIN', kind: 'current' }, { name: 'South Mumbai', x: 87, y: 79, time: 'BY ROAD · 70 MIN', kind: 'current' }];
-  return <section className="location section-pad" id="location"><div className="location-copy"><Eyebrow>At the edge of the city</Eyebrow><h2>Close to<br />everything.<br /><i>A world away.</i></h2><p>Rooted on Madh Island, with the city within reach and the sea at your doorstep.</p><div className="location-legend"><span><i className="dot-current" /> Existing connections</span><span><i className="dot-proposed" /> Proposed infrastructure</span></div><small>Travel times are indicative and may vary by route and traffic.</small></div><div className="map-area"><div className="map-texture" /><svg className="map-lines" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M52 27 Q40 36 24 49 M52 27 Q68 34 77 51 M52 27 Q66 18 76 27 M52 27 Q34 53 32 76 M52 27 Q74 49 87 79" /><path className="proposed-route" d="M52 27 Q52 54 68 67" /></svg>{places.map(p => <button key={p.name} onClick={() => setSelected(p.name)} className={`map-point ${p.kind} ${selected === p.name ? 'selected' : ''}`} style={{ left: `${p.x}%`, top: `${p.y}%` }}><span className="point-core" /><span className="point-label">{p.name}<small>{p.time}</small></span></button>)}<div className="map-north">N <ArrowUpRight size={17} /></div><div className="map-scale"><i /> 5 KM</div><div className="map-water-label">ARABIAN SEA</div><div className="map-island-label">MADH ISLAND</div></div><div className="location-foot"><span>19°08' N&nbsp; 72°47' E</span><span>CONNECTIVITY, CONSIDERED.</span></div></section>;
-}
-
-function FloorPlan() {
-  const [room, setRoom] = useState('Living room'); const roomNames = ['Living room', 'Kitchen', 'Master bedroom', 'Bedroom', 'Bathroom', 'Deck'];
-  return <section className="floorplan section-pad"><div className="floor-copy"><Eyebrow>A place for every rhythm</Eyebrow><h2>Considered<br /><i>down to the detail.</i></h2><p>Explore a residence shaped around light, privacy, and the quiet luxury of space.</p><div className="plan-room-list">{roomNames.map((r, i) => <button key={r} onMouseEnter={() => setRoom(r)} onClick={() => setRoom(r)} className={room === r ? 'selected' : ''}><span>0{i + 1}</span>{r}<ArrowUpRight size={15} /></button>)}</div></div><div className="plan-wrap"><div className="plan-tag">VERONA · RESIDENCE STUDY</div><div className={`plan-drawing room-${room.toLowerCase().replace(' ', '-')}`}><div className="plan-room plan-living" onMouseEnter={() => setRoom('Living room')}><span>LIVING</span></div><div className="plan-room plan-kitchen" onMouseEnter={() => setRoom('Kitchen')}><span>KITCHEN</span></div><div className="plan-room plan-master" onMouseEnter={() => setRoom('Master bedroom')}><span>MASTER<br />BEDROOM</span></div><div className="plan-room plan-bedroom" onMouseEnter={() => setRoom('Bedroom')}><span>BEDROOM</span></div><div className="plan-room plan-bath" onMouseEnter={() => setRoom('Bathroom')}><span>BATH</span></div><div className="plan-room plan-deck" onMouseEnter={() => setRoom('Deck')}><span>PRIVATE DECK</span></div><div className="plan-furniture sofa" /><div className="plan-furniture table" /><div className="plan-furniture bed" /><div className="plan-furniture bed-two" /></div><div className="plan-selection"><span>SELECTED SPACE</span><b>{room}</b><span>Illustrative plan · indicative layout</span></div></div></section>;
-}
-
-function Gallery() {
-  const [active, setActive] = useState(0); const pics = [photos.terrace, photos.interior, photos.pool, photos.bedroom];
-  return <section className="gallery" id="gallery"><div className="gallery-heading"><Eyebrow light>A glimpse of the extraordinary</Eyebrow><h2>The Verona<br /><i>state of mind.</i></h2><span>04 — GALLERY</span></div><div className="gallery-frame"><Image src={pics[active]} alt="Verona residence gallery" key={active} /><div className="gallery-frame-shade" /><div className="gallery-counter">0{active + 1} <i /> 0{pics.length}</div><div className="gallery-arrows"><button onClick={() => setActive((active + pics.length - 1) % pics.length)} aria-label="Previous image"><ChevronLeft /></button><button onClick={() => setActive((active + 1) % pics.length)} aria-label="Next image"><ChevronRight /></button></div><div className="gallery-caption"><span>{['THE PRIVATE DECK', 'LIVING, OPEN TO THE SEA', 'A DIFFERENT KIND OF STILLNESS', 'A ROOM WITH A VIEW'][active]}</span><ArrowUpRight size={17} /></div></div><div className="gallery-thumbs">{pics.map((src, i) => <button className={i === active ? 'selected' : ''} onClick={() => setActive(i)} key={src}><Image src={src} alt="" /><span>0{i + 1}</span></button>)}</div></section>;
-}
-
+/* ─── Enquiry ─── */
 function Enquiry() {
   const [sent, setSent] = useState(false);
-  return <section className="enquiry" id="enquire"><div className="enquiry-image"><Image src={photos.night} alt="Verona at twilight" /><div className="enquiry-overlay" /></div><div className="enquiry-content"><Eyebrow light>A world of your own</Eyebrow><h2>Your island<br /><i>home awaits.</i></h2><p>Some addresses are discovered.<br />Others are felt.</p><a className="enquire-main" href="#contact">Begin a conversation <ArrowUpRight size={17} /></a><span className="enquiry-location">RAHEJA EXOTICA · MADH ISLAND · MUMBAI</span></div><form id="contact" className="enquiry-form" onSubmit={e => { e.preventDefault(); setSent(true); }}><Eyebrow light>Request a private viewing</Eyebrow><h3>{sent ? 'Thank you.' : 'Let us introduce you.'}</h3>{sent ? <p className="form-success">Our Verona concierge will be in touch shortly.</p> : <><label>Your name<input required placeholder="Full name" /></label><div className="form-row"><label>Mobile number<input type="tel" required placeholder="+91" /></label><label>Email address<input type="email" placeholder="you@email.com" /></label></div><label>I'm interested in<select defaultValue=""><option value="" disabled>Select a residence</option><option>2 bedroom residence</option><option>3 bedroom residence</option><option>4 bedroom residence</option><option>Private viewing</option></select></label><button className="form-submit" type="submit">Request a callback <ArrowUpRight size={16} /></button><small>By submitting, you consent to be contacted by our team.</small></>}</form></section>;
+  return (
+    <section className="enquiry" id="enquire">
+      <div className="enquiry-image"><Img src={photos.night} alt="Verona at twilight" /><div className="enquiry-overlay" /></div>
+      <div className="enquiry-content">
+        <Eyebrow light>A world of your own</Eyebrow>
+        <h2>Your island<br /><i>home awaits.</i></h2>
+        <p>Some addresses are discovered.<br />Others are felt.</p>
+        <a className="enquire-main" href="#contact">Begin a conversation <ArrowUpRight size={17} /></a>
+        <span className="enquiry-location">RAHEJA EXOTICA · MADH ISLAND · MUMBAI</span>
+      </div>
+      <form id="contact" className="enquiry-form" onSubmit={e => { e.preventDefault(); setSent(true); }}>
+        <Eyebrow light>Request a private viewing</Eyebrow>
+        <h3>{sent ? 'Thank you.' : 'Let us introduce you.'}</h3>
+        {sent ? <p className="form-success">Our Verona concierge will be in touch shortly.</p> : <>
+          <label>Your name<input required placeholder="Full name" /></label>
+          <div className="form-row">
+            <label>Mobile number<input type="tel" required placeholder="+91" /></label>
+            <label>Email address<input type="email" placeholder="you@email.com" /></label>
+          </div>
+          <label>I'm interested in
+            <select defaultValue="">
+              <option value="" disabled>Select a residence</option>
+              <option>2 bedroom residence</option>
+              <option>3 bedroom residence</option>
+              <option>4 bedroom residence</option>
+              <option>Private viewing</option>
+            </select>
+          </label>
+          <button className="form-submit" type="submit">Request a callback <ArrowUpRight size={16} /></button>
+          <small>By submitting, you consent to be contacted by our team.</small>
+        </>}
+      </form>
+    </section>
+  );
 }
 
-function Footer() { return <footer className="footer"><a href="#top" className="footer-brand"><span className="brand-mark">V</span><span><b>VERONA</b><small>RAHEJA EXOTICA · MUMBAI</small></span></a><div className="footer-mid"><span>A LIFE APART, YET CLOSE TO IT ALL.</span><span>MADE FOR THE MOMENTS THAT MATTER.</span></div><div className="footer-right"><a href="#top">Back to top ↑</a><span>© RAHEJA UNIVERSAL</span></div></footer>; }
+/* ─── Footer ─── */
+function Footer() {
+  return (
+    <footer className="footer">
+      <a href="#top" className="footer-brand">
+        <span className="brand-mark">V</span>
+        <span><b>VERONA</b><small>RAHEJA EXOTICA · MUMBAI</small></span>
+      </a>
+      <div className="footer-mid">
+        <span>A LIFE APART, YET CLOSE TO IT ALL.</span>
+        <span>MADE FOR THE MOMENTS THAT MATTER.</span>
+      </div>
+      <div className="footer-right"><a href="#top">Back to top ↑</a><span>© RAHEJA UNIVERSAL</span></div>
+    </footer>
+  );
+}
 
+/* ─── App root ─── */
 export default function App() {
   const [scrollPct, setScrollPct] = useState(0);
+
   useEffect(() => {
-    const lenis = new Lenis({ 
-      duration: 1.25, 
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true, 
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.5,
+    /* ── Lenis smooth scroll ── */
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 0.88,
+      touchMultiplier: 1.8,
     });
-    
+
+    /* Single shared RAF via GSAP ticker */
+    const tickLenis = time => lenis.raf(time * 1000);
+    gsap.ticker.add(tickLenis);
+    gsap.ticker.lagSmoothing(0);
+
+    /* Keep ScrollTrigger positions in sync with Lenis */
     lenis.on('scroll', ScrollTrigger.update);
-    
-    let rafId;
-    function raf(time) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
-    
+
     const onScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalScroll > 0) {
-        setScrollPct(Math.min(100, Math.round((window.scrollY / totalScroll) * 100)));
-      }
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (total > 0) setScrollPct(Math.min(100, Math.round(window.scrollY / total * 100)));
     };
-    
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => { 
-      window.removeEventListener('scroll', onScroll); 
-      cancelAnimationFrame(rafId);
-      lenis.destroy(); 
+
+    return () => {
+      gsap.ticker.remove(tickLenis);
+      window.removeEventListener('scroll', onScroll);
+      lenis.destroy();
     };
   }, []);
-  
+
   const handleEnquire = () => document.querySelector('#enquire')?.scrollIntoView({ behavior: 'smooth' });
-  return <><div className="scroll-progress" style={{ transform: `scaleX(${scrollPct / 100})` }} /><Navigation onEnquire={handleEnquire} /><main><Hero /><Manifesto /><BuildingSequence /><Residence /><RoomExplorer /><Amenities /><Location /><FloorPlan /><Gallery /><Enquiry /></main><Footer /><div className="mobile-bar"><a href="tel:+912240000000"><Phone size={15} />Call</a><a href="#enquire">Enquire <ArrowUpRight size={15} /></a></div></>;
+
+  return <>
+    <div className="scroll-progress" style={{ transform: `scaleX(${scrollPct / 100})` }} />
+    <Navigation onEnquire={handleEnquire} />
+    <main>
+      <Hero />
+      <Manifesto />
+      <LegacyExperience />
+      <Residence />
+      <RoomExplorer />
+      <Amenities />
+      <Enquiry />
+    </main>
+    <Footer />
+    <div className="mobile-bar">
+      <a href="tel:+912240000000"><Phone size={15} />Call</a>
+      <a href="#enquire">Enquire <ArrowUpRight size={15} /></a>
+    </div>
+  </>;
 }

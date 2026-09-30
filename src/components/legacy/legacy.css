@@ -1,0 +1,715 @@
+/* ──────────────────────────────────────────────────────────────
+   THE RAHEJA LEGACY — CLEAN ONE-SCENE-AT-A-TIME CINEMATIC FILM
+   Color System:
+   Deep Navy: #06131B | Dark Navy: #081923 | Warm Ivory: #F5F0E8
+   Champagne Gold: #C9A96A | Soft Gold: #A98A55 | Muted Blue: #9DB4C0
+────────────────────────────────────────────────────────────── */
+
+:root {
+  --leg-deep-navy: #06131B;
+  --leg-dark-navy: #081923;
+  --leg-warm-ivory: #F5F0E8;
+  --leg-gold: #C9A96A;
+  --leg-soft-gold: #A98A55;
+  --leg-muted-blue: #9DB4C0;
+}
+
+/* ─── Pinned Container ─── */
+.legacy-cinematic-film-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--leg-deep-navy);
+  color: #fff;
+  overflow: hidden;
+  z-index: 10;
+  transition: background-color 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ─── Background 3D Canvas ─── */
+.legacy-3d-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.legacy-film-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 35%, rgba(6, 19, 27, 0.75) 85%, rgba(6, 19, 27, 0.95) 100%);
+}
+
+.legacy-architectural-grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(201, 169, 106, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(201, 169, 106, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ─── Stage Container ─── */
+.legacy-stage-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Core Rule: Each Scene is Strictly Hidden When Inactive ─── */
+.legacy-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8vw;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Global Tags & Accents */
+.scene-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--leg-gold);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SCENE 0: INTRO
+────────────────────────────────────────────────────────────── */
+.intro-content {
+  text-align: center;
+  max-width: 800px;
+}
+
+.intro-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(201, 169, 106, 0.1);
+  border: 1px solid rgba(201, 169, 106, 0.35);
+  color: var(--leg-gold);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 6px 18px;
+  border-radius: 100px;
+  margin-bottom: 24px;
+}
+
+.intro-line {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--leg-gold), transparent);
+  margin: 0 auto 20px;
+  transform-origin: center;
+}
+
+.intro-title {
+  font: clamp(48px, 7.5vw, 108px)/0.96 var(--serif, 'Cinzel', serif);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin: 0 0 24px;
+}
+
+.intro-title i {
+  color: var(--leg-gold);
+  font-style: italic;
+}
+
+.intro-hint {
+  font-size: 8px;
+  letter-spacing: 0.24em;
+  color: var(--leg-muted-blue);
+  text-transform: uppercase;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SCENE 1: 1980 THE FOUNDATION
+────────────────────────────────────────────────────────────── */
+.card-1980 {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 48px;
+  align-items: center;
+  max-width: 1100px;
+  width: 100%;
+  background: rgba(8, 25, 35, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 169, 106, 0.35);
+  border-radius: 28px;
+  padding: 44px 48px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85);
+}
+
+.year-hero {
+  font: 56px/1 var(--serif, 'Cinzel', serif);
+  color: var(--leg-gold);
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.scene-heading {
+  font: clamp(28px, 3.2vw, 44px)/1.06 var(--serif, 'Cinzel', serif);
+  color: #fff;
+  font-weight: 400;
+  margin: 0 0 16px;
+}
+
+.scene-heading i {
+  color: var(--leg-gold);
+  font-style: italic;
+}
+
+.scene-body {
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: #c0d3dc;
+  margin: 0 0 18px;
+}
+
+.scene-quote {
+  font: italic 12px/1.65 var(--serif, 'Cinzel', serif);
+  color: var(--leg-gold);
+  border-left: 2px solid var(--leg-gold);
+  padding-left: 14px;
+  margin: 0;
+}
+
+.scene-img-frame {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.scene-img-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-badge {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  background: rgba(6, 19, 27, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(201, 169, 106, 0.4);
+  color: var(--leg-gold);
+  font-size: 7.5px;
+  letter-spacing: 0.14em;
+  padding: 5px 12px;
+  border-radius: 100px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SCENE 2: 1986 THE NEXT CHAPTER
+────────────────────────────────────────────────────────────── */
+.card-1986 {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 48px;
+  align-items: center;
+  max-width: 1100px;
+  width: 100%;
+  background: rgba(8, 25, 35, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(64, 144, 200, 0.4);
+  border-radius: 28px;
+  padding: 44px 48px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85);
+}
+
+.year-1986-badge {
+  font: 56px/1 var(--serif, 'Cinzel', serif);
+  color: #4090c8;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.scene-stat-pill {
+  display: inline-block;
+  background: rgba(64, 144, 200, 0.15);
+  border: 1px solid rgba(64, 144, 200, 0.35);
+  color: #8ec3e8;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 100px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SCENE 3: A MUSEUM OF MILESTONES (ONE BY ONE CAROUSEL)
+────────────────────────────────────────────────────────────── */
+.scene-museum {
+  justify-content: center;
+  align-items: center;
+}
+
+.museum-header-bar {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.museum-heading {
+  font: clamp(30px, 3.8vw, 48px)/1.05 var(--serif, 'Cinzel', serif);
+  color: #fff;
+  margin: 0;
+  font-weight: 400;
+}
+
+.museum-project-track {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+}
+
+.museum-single-card {
+  width: 440px;
+  background: rgba(8, 25, 35, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 169, 106, 0.35);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+  flex-shrink: 0;
+}
+
+.museum-card-media {
+  position: relative;
+  width: 100%;
+  height: 220px;
+}
+
+.museum-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.museum-media-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(8, 25, 35, 0.95) 100%);
+}
+
+.museum-card-num {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(6, 19, 27, 0.85);
+  border: 1px solid rgba(201, 169, 106, 0.3);
+  color: var(--leg-gold);
+  font-size: 7.5px;
+  letter-spacing: 0.14em;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.museum-card-info {
+  padding: 22px 26px 26px;
+}
+
+.museum-card-loc {
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  color: var(--leg-muted-blue);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.museum-card-title {
+  font: 22px/1.2 var(--serif, 'Cinzel', serif);
+  color: #fff;
+  margin: 0 0 8px;
+  font-weight: 400;
+}
+
+.museum-card-desc {
+  font-size: 11px;
+  line-height: 1.65;
+  color: #a4b9c2;
+  margin: 0 0 14px;
+}
+
+.museum-card-spec {
+  display: inline-block;
+  background: rgba(201, 169, 106, 0.12);
+  border: 1px solid rgba(201, 169, 106, 0.3);
+  color: var(--leg-gold);
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SCENE 4: CITY MEETS THE SEA
+────────────────────────────────────────────────────────────── */
+.sea-box {
+  text-align: center;
+  max-width: 680px;
+}
+
+.sea-title {
+  font: clamp(38px, 5.5vw, 76px)/1.0 var(--serif, 'Cinzel', serif);
+  color: #fff;
+  font-weight: 400;
+  margin: 0 0 16px;
+}
+
+.sea-title i {
+  color: var(--leg-gold);
+  font-style: italic;
+}
+
+.sea-line {
+  width: 140px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--leg-gold), transparent);
+  margin: 0 auto 20px;
+}
+
+.sea-desc {
+  font-size: 13px;
+  line-height: 1.85;
+  color: #c2d5de;
+  margin: 0 0 28px;
+}
+
+.sea-stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.sea-stats-row > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sea-stats-row b {
+  font: 26px/1 var(--serif, 'Cinzel', serif);
+  color: var(--leg-gold);
+  font-weight: 400;
+}
+
+.sea-stats-row span {
+  font-size: 7.5px;
+  letter-spacing: 0.14em;
+  color: var(--leg-muted-blue);
+  text-transform: uppercase;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SCENE 5: VERONA REVEAL
+────────────────────────────────────────────────────────────── */
+.verona-panel {
+  max-width: 580px;
+  width: 100%;
+  background: rgba(8, 25, 35, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 169, 106, 0.4);
+  border-radius: 26px;
+  padding: 36px 40px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
+}
+
+.verona-title {
+  font: clamp(28px, 3.4vw, 44px)/1.1 var(--serif, 'Cinzel', serif);
+  color: #fff;
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+
+.verona-title i {
+  color: var(--leg-gold);
+  font-style: italic;
+}
+
+.verona-sub {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: #a4bcc7;
+  margin: 0 0 24px;
+}
+
+.verona-steps-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.verona-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(201, 169, 106, 0.2);
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.verona-step b {
+  font: 14px var(--serif, 'Cinzel', serif);
+  color: var(--leg-gold);
+}
+
+.verona-step div {
+  display: flex;
+  flex-direction: column;
+}
+
+.verona-step strong {
+  font-size: 10px;
+  color: #fff;
+}
+
+.verona-step span {
+  font-size: 8px;
+  color: var(--leg-muted-blue);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SCENE 6: FINALE & TRANSITION
+────────────────────────────────────────────────────────────── */
+.finale-box {
+  text-align: center;
+  max-width: 680px;
+}
+
+.finale-title {
+  font: clamp(38px, 5.5vw, 76px)/1.0 var(--serif, 'Cinzel', serif);
+  color: #fff;
+  margin: 0 0 14px;
+  font-weight: 400;
+}
+
+.finale-sub {
+  font-size: 13px;
+  line-height: 1.75;
+  color: #a2b7c2;
+  margin: 0 0 24px;
+}
+
+.finale-brand {
+  font: clamp(54px, 8vw, 100px)/0.9 var(--serif, 'Cinzel', serif);
+  color: var(--leg-gold);
+  letter-spacing: 0.24em;
+  margin-bottom: 28px;
+  transition: color 0.4s ease;
+}
+
+.finale-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--leg-gold);
+  color: var(--leg-deep-navy);
+  padding: 12px 28px;
+  border-radius: 100px;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.finale-cta-btn:hover {
+  background: #fff;
+  color: #000;
+  transform: translateY(-2px);
+}
+
+/* ─── Bottom Status Bar ─── */
+.legacy-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 12px 6vw;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: linear-gradient(180deg, transparent, rgba(6, 19, 27, 0.95));
+  pointer-events: none;
+}
+
+.bar-progress-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bar-progress-indicator {
+  height: 100%;
+  background: linear-gradient(90deg, var(--leg-muted-blue), var(--leg-gold));
+  transition: width 0.1s linear;
+}
+
+.bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7.5px;
+  letter-spacing: 0.18em;
+  color: #7b94a0;
+  text-transform: uppercase;
+}
+
+/* ─── Debug HUD ─── */
+.legacy-debug-hud {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 100;
+  background: rgba(4, 15, 23, 0.92);
+  border: 1px solid var(--leg-gold);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.hud-title {
+  color: var(--leg-gold);
+  font-weight: bold;
+  border-bottom: 1px solid rgba(201, 169, 106, 0.3);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hud-row span {
+  color: #8da4b0;
+}
+
+/* ─── Custom Luxury Cursor ─── */
+.legacy-custom-cursor-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.legacy-cursor-dot {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--leg-gold);
+  transform: translate(-50%, -50%);
+}
+
+.legacy-cursor-ring {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 169, 106, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              background-color 0.3s ease;
+}
+
+.legacy-cursor-ring.is-active {
+  width: 76px;
+  height: 76px;
+  top: -38px;
+  left: -38px;
+  background: rgba(201, 169, 106, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.legacy-cursor-text {
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .card-1980, .card-1986 {
+    grid-template-columns: 1fr;
+    padding: 32px 28px;
+    gap: 24px;
+  }
+  .scene-img-frame {
+    height: 220px;
+  }
+  .verona-steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .museum-single-card {
+    width: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  .intro-title {
+    font-size: 42px;
+  }
+  .year-hero, .year-1986-badge {
+    font-size: 42px;
+  }
+  .museum-single-card {
+    width: 280px;
+  }
+  .legacy-custom-cursor-layer {
+    display: none;
+  }
+}
