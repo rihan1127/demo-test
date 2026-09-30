@@ -9,6 +9,7 @@ import './components/legacy/legacy.css';
 
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
+ScrollTrigger.normalizeScroll(true);
 
 /* ── device check (evaluated once per component mount) ── */
 const isMobile = () => window.innerWidth <= 900 || 'ontouchstart' in window;
@@ -888,8 +889,6 @@ export default function App() {
       smoothWheel: true,
       wheelMultiplier: 0.88,
       touchMultiplier: 2,
-      syncTouch: true,
-      smoothTouch: true,
     });
 
     /* Single shared RAF via GSAP ticker */
