@@ -8,6 +8,7 @@ import LegacyExperience from './components/legacy/LegacyExperience';
 import './components/legacy/legacy.css';
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 /* ── device check (evaluated once per component mount) ── */
 const isMobile = () => window.innerWidth <= 900 || 'ontouchstart' in window;
@@ -362,7 +363,7 @@ function Hero() {
           end: '+=280%',
           pin: true,
           pinSpacing: true,
-          scrub: 1.2,
+          scrub: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate(self) {
@@ -662,7 +663,7 @@ function RoomExplorer() {
           trigger: section.current,
           start: 'top top',
           end: () => `+=${track.current.scrollWidth - window.innerWidth}`,
-          scrub: 1.2,
+          scrub: true,
           pin: true,
           pinSpacing: true,
           invalidateOnRefresh: true,
@@ -751,7 +752,7 @@ function Amenities() {
           trigger: section.current,
           start: 'top top',
           end: () => `+=${track.current.scrollWidth - window.innerWidth}`,
-          scrub: 1.2,
+          scrub: true,
           pin: true,
           pinSpacing: true,
           invalidateOnRefresh: true,
