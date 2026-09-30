@@ -886,7 +886,9 @@ export default function App() {
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: 0.88,
-      touchMultiplier: 1.8,
+      touchMultiplier: 2,
+      syncTouch: true,
+      smoothTouch: true,
     });
 
     /* Single shared RAF via GSAP ticker */
