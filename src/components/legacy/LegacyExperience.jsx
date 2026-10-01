@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Sparkles, ArrowUpRight, Compass, Shield, Award, Building2 } from 'lucide-react';
-import Legacy3DCanvas from './Legacy3DCanvas';
 import LegacyCursor from './LegacyCursor';
 import './legacy.css';
 
@@ -241,9 +240,6 @@ export default function LegacyExperience() {
   return (
     <section className="legacy-cinematic-film-section" id="legacy" ref={sectionRef}>
       <LegacyCursor containerRef={sectionRef} />
-
-      {/* Persistent Three.js WebGL Canvas in Background */}
-      <Legacy3DCanvas scrollProgressRef={scrollProgressRef} mouseRef={mouseRef} />
 
       {/* Subtle Vignette & Grid */}
       <div className="legacy-film-vignette" />

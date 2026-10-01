@@ -9,15 +9,11 @@ import './components/legacy/legacy.css';
 
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
-<<<<<<< HEAD
-ScrollTrigger.normalizeScroll(true);
-=======
 
 const FRAME_SETS = {
   portrait: { dir: '/hero-frames/m', count: 120, srcW: 808, srcH: 1440 },
   landscape: { dir: '/hero-frames/d', count: 120, srcW: 1280, srcH: 720 },
 };
->>>>>>> 29dece4 (Perf: Optimize mobile scroll performance, WebP frame scrubbing & zero React re-render scroll pipeline)
 
 /* ── device check (evaluated once per component mount) ── */
 const isMobile = () => window.innerWidth <= 900 || 'ontouchstart' in window;
@@ -893,12 +889,8 @@ export default function App() {
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: 0.88,
-<<<<<<< HEAD
-      touchMultiplier: 2,
-=======
       touchMultiplier: 1.5,
       syncTouch: true,
->>>>>>> 29dece4 (Perf: Optimize mobile scroll performance, WebP frame scrubbing & zero React re-render scroll pipeline)
     });
 
     /* Single shared RAF via GSAP ticker */

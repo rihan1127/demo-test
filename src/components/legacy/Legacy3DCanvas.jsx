@@ -172,7 +172,7 @@ function CoastalWater({ progress }) {
 
 /* ── Subtle Gold Ambient Dust ── */
 function AmbientDust({ count = 160 }) {
-  const ref = useRef();
+  const pointsRef = useRef();
   const [positions, speeds] = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const spd = new Float32Array(count);
@@ -186,17 +186,18 @@ function AmbientDust({ count = 160 }) {
   }, [count]);
 
   useFrame(() => {
-    if (!ref.current) return;
-    const arr = ref.current.attributes.position.array;
+    const attr = pointsRef.current?.geometry?.attributes?.position;
+    if (!attr || !attr.array) return;
+    const arr = attr.array;
     for (let i = 0; i < count; i++) {
       arr[i * 3 + 1] += speeds[i];
       if (arr[i * 3 + 1] > 8) arr[i * 3 + 1] = -8;
     }
-    ref.current.attributes.position.needsUpdate = true;
+    attr.needsUpdate = true;
   });
 
   return (
-    <points ref={ref}>
+    <points ref={pointsRef}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
