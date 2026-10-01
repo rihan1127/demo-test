@@ -2,6 +2,8 @@ import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
+const getP = (p) => (typeof p === 'object' && p !== null ? (p.current ?? 0) : (Number(p) || 0));
+
 /* ── Minimal Ambient Grid & Architectural Towers ── */
 function CityEnvironment({ progress }) {
   const groupRef = useRef();
@@ -38,7 +40,7 @@ function CityEnvironment({ progress }) {
 
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = progress * 0.18;
+      groupRef.current.rotation.y = getP(progress) * 0.18;
     }
   });
 
@@ -82,12 +84,13 @@ function CityEnvironment({ progress }) {
 function VeronaStructure({ progress }) {
   const groupRef = useRef();
 
-  // Active during Verona scene (progress 0.70 to 0.92)
-  const vProgress = Math.max(0, Math.min(1, (progress - 0.70) / 0.20));
-
   useFrame(() => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = (progress - 0.75) * 0.8;
+    if (!groupRef.current) return;
+    const p = getP(progress);
+    const vProgress = Math.max(0, Math.min(1, (p - 0.70) / 0.20));
+    groupRef.current.visible = vProgress > 0;
+    if (vProgress > 0) {
+      groupRef.current.rotation.y = (p - 0.75) * 0.8;
     }
   });
 
@@ -100,8 +103,6 @@ function VeronaStructure({ progress }) {
     return list;
   }, []);
 
-  if (vProgress <= 0) return null;
-
   return (
     <group ref={groupRef} position={[0, 0, -1]}>
       {/* Structural Tower Core */}
@@ -110,16 +111,16 @@ function VeronaStructure({ progress }) {
         <meshStandardMaterial
           color="#06131b"
           emissive="#c9a96a"
-          emissiveIntensity={vProgress * 0.2}
+          emissiveIntensity={0.2}
           transparent
-          opacity={vProgress * 0.85}
+          opacity={0.85}
         />
       </mesh>
 
       {/* Wireframe edges */}
       <lineSegments position={[0, 2.5, 0]}>
         <edgesGeometry args={[new THREE.BoxGeometry(2.2, 7.2, 2.2)]} />
-        <lineBasicMaterial color="#c9a96a" transparent opacity={vProgress * 0.7} />
+        <lineBasicMaterial color="#c9a96a" transparent opacity={0.7} />
       </lineSegments>
 
       {/* Floor Plates */}
@@ -129,33 +130,41 @@ function VeronaStructure({ progress }) {
           <meshStandardMaterial
             color="#c9a96a"
             emissive="#c9a96a"
-            emissiveIntensity={vProgress * 0.35}
+            emissiveIntensity={0.35}
             transparent
-            opacity={vProgress * 0.75}
+            opacity={0.75}
           />
         </mesh>
       ))}
 
       {/* Interior Warm Light */}
-      <pointLight position={[0, 2.5, 0]} color="#c9a96a" intensity={vProgress * 2.2} distance={10} />
+      <pointLight position={[0, 2.5, 0]} color="#c9a96a" intensity={2.2} distance={10} />
     </group>
   );
 }
 
 /* ── Water Surface for Coastal Phase ── */
 function CoastalWater({ progress }) {
-  const waterAlpha = Math.max(0, Math.min(0.7, (progress - 0.58) * 3));
-  if (progress < 0.55) return null;
+  const meshRef = useRef();
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    const p = getP(progress);
+    meshRef.current.visible = p >= 0.55;
+    if (p >= 0.55 && meshRef.current.material) {
+      meshRef.current.material.opacity = Math.max(0, Math.min(0.7, (p - 0.58) * 3));
+    }
+  });
 
   return (
-    <mesh position={[0, -1.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh ref={meshRef} position={[0, -1.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[80, 80]} />
       <meshStandardMaterial
         color="#04121d"
         roughness={0.15}
         metalness={0.85}
         transparent
-        opacity={waterAlpha}
+        opacity={0.7}
       />
     </mesh>
   );
@@ -201,7 +210,7 @@ function CameraRig({ progress, mouseRef }) {
   const { camera } = useThree();
 
   useFrame(() => {
-    const p = Math.max(0, Math.min(1, progress));
+    const p = Math.max(0, Math.min(1, getP(progress)));
     const mx = (mouseRef?.current?.x || 0) * 0.6;
     const my = (mouseRef?.current?.y || 0) * 0.4;
 
@@ -271,7 +280,8 @@ function CameraRig({ progress, mouseRef }) {
   return null;
 }
 
-export default function Legacy3DCanvas({ scrollProgress = 0, mouseRef }) {
+export default function Legacy3DCanvas({ scrollProgress = 0, scrollProgressRef, mouseRef }) {
+  const pProp = scrollProgressRef || scrollProgress;
   return (
     <div className="legacy-3d-canvas-wrap">
       <Canvas
@@ -288,11 +298,11 @@ export default function Legacy3DCanvas({ scrollProgress = 0, mouseRef }) {
         <directionalLight position={[8, 12, 5]} color="#c9a96a" intensity={0.8} />
         <directionalLight position={[-8, 6, -5]} color="#3d789e" intensity={0.4} />
 
-        <CityEnvironment progress={scrollProgress} />
-        <CoastalWater progress={scrollProgress} />
-        <VeronaStructure progress={scrollProgress} />
+        <CityEnvironment progress={pProp} />
+        <CoastalWater progress={pProp} />
+        <VeronaStructure progress={pProp} />
         <AmbientDust count={160} />
-        <CameraRig progress={scrollProgress} mouseRef={mouseRef} />
+        <CameraRig progress={pProp} mouseRef={mouseRef} />
       </Canvas>
     </div>
   );

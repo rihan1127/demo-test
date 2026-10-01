@@ -3370,3 +3370,27 @@ main {
   top: 16px;
   width: 14px
 }
+
+/* ================= Hero scroll sequence — performance ================= */
+:root { --hero-h: max(100svh, 700px); }
+@media (max-width: 900px) { :root { --hero-h: max(100svh, 660px); } }
+@media (max-width: 600px) { :root { --hero-h: clamp(680px, 100svh, 940px); } }
+
+.hero-track { position: relative; height: calc(var(--hero-h) * 3.2); }
+.hero { position: sticky; top: 0; height: var(--hero-h); min-height: 0; max-height: none; contain: layout paint; }
+
+.hero-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  background: #0a2230; pointer-events: none;
+}
+.hero-copy, .hero-stats > div, .hero-scroll { will-change: transform, opacity; }
+
+@media (max-width: 900px) {
+  .nav.scrolled { backdrop-filter: none; background: #081c29f2; }
+  .tower-toast { backdrop-filter: none; background: #0b202df5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-track { height: auto; }
+  .hero { position: relative; }
+}

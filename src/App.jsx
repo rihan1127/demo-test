@@ -3,13 +3,21 @@ import { ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, Menu, X, Play, Che
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import heroFilm from './assets/Create_an_ultra_premium_photo.mp4';
+import { createFrameScrubber } from './lib/frameScrub.js';
 import LegacyExperience from './components/legacy/LegacyExperience';
 import './components/legacy/legacy.css';
 
 gsap.registerPlugin(ScrollTrigger);
 ScrollTrigger.config({ ignoreMobileResize: true });
+<<<<<<< HEAD
 ScrollTrigger.normalizeScroll(true);
+=======
+
+const FRAME_SETS = {
+  portrait: { dir: '/hero-frames/m', count: 120, srcW: 808, srcH: 1440 },
+  landscape: { dir: '/hero-frames/d', count: 120, srcW: 1280, srcH: 720 },
+};
+>>>>>>> 29dece4 (Perf: Optimize mobile scroll performance, WebP frame scrubbing & zero React re-render scroll pipeline)
 
 /* ── device check (evaluated once per component mount) ── */
 const isMobile = () => window.innerWidth <= 900 || 'ontouchstart' in window;
@@ -332,164 +340,150 @@ const heroPhases = [
 
 /* ─── Hero ─── */
 function Hero() {
+  const track = useRef(null);
   const ref = useRef(null);
-  const film = useRef(null);
+  const canvas = useRef(null);
   const [activePhase, setActivePhase] = useState(0);
+  const activePhaseRef = useRef(0);
 
   useEffect(() => {
-    const video = film.current;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const portraitMQ = window.matchMedia('(max-aspect-ratio: 4/5)');
     let scrubber = null;
+    let progress = 0;
 
-    if (video) {
-      video.loop = false;
-      video.playbackRate = 0;
-      video.play().then(() => {
-        video.playbackRate = 0;
-      }).catch(() => {});
-      scrubber = makeVideoScrubber(video);
-    }
+    const mount = () => {
+      scrubber?.destroy();
+      const set = portraitMQ.matches ? FRAME_SETS.portrait : FRAME_SETS.landscape;
+      scrubber = createFrameScrubber(canvas.current, { ...set, limit: reduce ? 1 : set.count });
+      const r = ref.current?.getBoundingClientRect();
+      if (r) scrubber.resize(r.width, r.height, window.devicePixelRatio || 1);
+      scrubber.setProgress(progress);
+    };
+    mount();
+    portraitMQ.addEventListener('change', mount);
+
+    const ro = new ResizeObserver(([e]) => scrubber?.resize(e.contentRect.width, e.contentRect.height, window.devicePixelRatio || 1));
+    if (ref.current) ro.observe(ref.current);
 
     const ctx = gsap.context(() => {
-      // Initial entrance
-      gsap.from('.hero-phase-0 > *', {
-        y: 40, opacity: 0, duration: 1.1, stagger: 0.12,
-        ease: 'power3.out', delay: 0.2,
-      });
+      gsap.from('.hero-phase-0 > *', { y: 35, opacity: 0, duration: 1.2, stagger: 0.13, ease: 'power3.out', delay: 0.25 });
+      if (reduce) return;
 
-      const tl = gsap.timeline({
+      const story = gsap.timeline({
         scrollTrigger: {
           id: 'hero-film-scrub',
-          trigger: ref.current,
+          trigger: track.current,
           start: 'top top',
-          end: '+=280%',
-          pin: true,
-          pinSpacing: true,
+          end: 'bottom bottom',
           scrub: true,
-          anticipatePin: 1,
           invalidateOnRefresh: true,
-          onUpdate(self) {
-            if (scrubber && video && video.duration) {
-              scrubber.setTarget(self.progress * video.duration);
+          onUpdate: self => {
+            progress = self.progress;
+            scrubber?.setProgress(progress);
+            
+            let nextPhase = 0;
+            if (progress >= 0.775) nextPhase = 3;
+            else if (progress >= 0.505) nextPhase = 2;
+            else if (progress >= 0.235) nextPhase = 1;
+
+            if (nextPhase !== activePhaseRef.current) {
+              activePhaseRef.current = nextPhase;
+              setActivePhase(nextPhase);
             }
-            // Update active phase indicator
-            const p = self.progress;
-            if (p < 0.25) setActivePhase(0);
-            else if (p < 0.52) setActivePhase(1);
-            else if (p < 0.78) setActivePhase(2);
-            else setActivePhase(3);
-          },
-          onLeave() {
-            if (scrubber && video && video.duration) {
-              scrubber.setTarget(video.duration);
-            }
-          },
-          onEnterBack() {},
-        },
+          }
+        }
       });
 
-      // Phase 0 fade out (0.18 - 0.25)
-      tl.to('.hero-phase-0', { y: -45, autoAlpha: 0, duration: 0.08, ease: 'power2.in' }, 0.18)
+      // Strict non-overlapping phase timelines (fade durations: 0.08, clear gaps between out & in)
+      story.to('.hero-phase-0', { y: -48, autoAlpha: 0, duration: 0.08, ease: 'power1.in' }, 0.16);
 
-      // Phase 1 (Master Bedroom) fade in (0.28) and fade out (0.48)
-      tl.fromTo('.hero-phase-1',
-        { y: 45, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power2.out' }, 0.28)
-      tl.to('.hero-phase-1', { y: -45, autoAlpha: 0, duration: 0.08, ease: 'power2.in' }, 0.48)
+      story.fromTo('.hero-phase-1', { y: 48, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power1.out' }, 0.26);
+      story.to('.hero-phase-1', { y: -48, autoAlpha: 0, duration: 0.08, ease: 'power1.in' }, 0.43);
 
-      // Phase 2 (Sun Deck & Plunge Pool) fade in (0.54) and fade out (0.74)
-      tl.fromTo('.hero-phase-2',
-        { y: 45, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power2.out' }, 0.54)
-      tl.to('.hero-phase-2', { y: -45, autoAlpha: 0, duration: 0.08, ease: 'power2.in' }, 0.74)
+      story.fromTo('.hero-phase-2', { y: 48, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power1.out' }, 0.53);
+      story.to('.hero-phase-2', { y: -48, autoAlpha: 0, duration: 0.08, ease: 'power1.in' }, 0.70);
 
-      // Phase 3 (Resort Oasis Pool) fade in (0.80)
-      tl.fromTo('.hero-phase-3',
-        { y: 45, autoAlpha: 0 },
-        { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power2.out' }, 0.80)
+      story.fromTo('.hero-phase-3', { y: 48, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.08, ease: 'power1.out' }, 0.80);
 
-      // Stats subtle lift
-      tl.fromTo('.hero-stats > div',
-        { y: 15, autoAlpha: 0.7 },
-        { y: 0, autoAlpha: 1, duration: 0.1, stagger: 0.05, ease: 'none' }, 0.3)
-      tl.to('.hero-scroll', { autoAlpha: 0, duration: 0.08, ease: 'none' }, 0.88);
+      story.fromTo('.hero-stats > div', { y: 15, autoAlpha: 0.7 }, { y: 0, autoAlpha: 1, duration: 0.11, stagger: 0.065, ease: 'none' }, 0.3);
+      story.to('.hero-scroll', { autoAlpha: 0, duration: 0.08, ease: 'none' }, 0.91);
     }, ref);
 
-    return () => { scrubber?.destroy(); ctx.revert(); };
+    return () => {
+      ctx.revert();
+      ro.disconnect();
+      portraitMQ.removeEventListener('change', mount);
+      scrubber?.destroy();
+    };
   }, []);
 
-  const onMeta = (e) => {
-    const trigger = ScrollTrigger.getById('hero-film-scrub');
-    if (trigger && e.currentTarget.duration)
-      e.currentTarget.currentTime = trigger.progress * e.currentTarget.duration;
-  };
-
   return (
-    <section className="hero" id="top" ref={ref}>
-      <video ref={film} className="hero-video" src={heroFilm}
-        muted playsInline preload="auto"
-        aria-label="Cinematic Verona property film"
-        onLoadedMetadata={onMeta} />
-      <div className="hero-shade" />
+    <div className="hero-track" ref={track}>
+      <section className="hero" id="top" ref={ref}>
+        <canvas ref={canvas} className="hero-canvas" role="img" aria-label="Cinematic Verona property film" />
+        <div className="hero-shade" />
 
-      <div className="hero-top">
-        <span>19°08' N&nbsp; 72°47' E</span>
-        <span>MADH ISLAND, MUMBAI</span>
-      </div>
-
-      {/* 4 Cinematic Hero Phases Overlays */}
-      <div className="hero-phases-container">
-        {heroPhases.map((item, idx) => (
-          <div key={item.phase} className={`hero-copy hero-phase hero-phase-${idx}`}>
-            <span className="hero-phase-tag">{item.tag}</span>
-            <Eyebrow light>{item.eyebrow}</Eyebrow>
-            <h1>
-              {item.title.split(' ').map((w, i, arr) => {
-                if (i >= arr.length - 2) return <i key={i}> {w}</i>;
-                return (i === 0 ? '' : ' ') + w;
-              })}
-            </h1>
-            <p className="hero-sub">{item.sub}</p>
-            
-            <div className="hero-phase-pills">
-              {item.pills.map((pill, pi) => (
-                <span key={pi} className="hero-phase-pill">{pill}</span>
-              ))}
-            </div>
-
-            {item.hasCta && (
-              <a href="#experience" className="round-link" style={{ marginTop: 22 }}>
-                <span>Discover Verona</span><ArrowDownRight size={19} />
-              </a>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Phase Navigator Indicators */}
-      <div className="hero-phase-nav">
-        {heroPhases.map((hp, i) => (
-          <div
-            key={i}
-            className={`hero-phase-indicator ${i === activePhase ? 'is-active' : ''}`}
-          >
-            <span className="phase-dot" />
-            <span className="phase-name">{hp.tag.split('·')[1]?.trim() || `0${i+1}`}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="hero-bottom">
-        <span className="hero-scroll"><ArrowDown size={15} /> Scroll to explore</span>
-        <div className="hero-stats">
-          <div><b>32</b><span>ACRES OF LAND</span></div>
-          <div><b>60<span>+</span></b><span>AMENITIES</span></div>
-          <div><b>80<span>%</span></b><span>OPEN GREEN</span></div>
+        <div className="hero-top">
+          <span>19°08' N&nbsp; 72°47' E</span>
+          <span>MADH ISLAND, MUMBAI</span>
         </div>
-        <span className="hero-index">0{activePhase + 1} / 04</span>
-      </div>
 
-      <div className="hero-vertical">A NEW PERSPECTIVE ON ISLAND LIVING</div>
-    </section>
+        {/* 4 Cinematic Hero Phases Overlays */}
+        <div className="hero-phases-container">
+          {heroPhases.map((item, idx) => (
+            <div key={item.phase} className={`hero-copy hero-phase hero-phase-${idx}`}>
+              <span className="hero-phase-tag">{item.tag}</span>
+              <Eyebrow light>{item.eyebrow}</Eyebrow>
+              <h1>
+                {item.title.split(' ').map((w, i, arr) => {
+                  if (i >= arr.length - 2) return <i key={i}> {w}</i>;
+                  return (i === 0 ? '' : ' ') + w;
+                })}
+              </h1>
+              <p className="hero-sub">{item.sub}</p>
+              
+              <div className="hero-phase-pills">
+                {item.pills.map((pill, pi) => (
+                  <span key={pi} className="hero-phase-pill">{pill}</span>
+                ))}
+              </div>
+
+              {item.hasCta && (
+                <a href="#experience" className="round-link" style={{ marginTop: 22 }}>
+                  <span>Discover Verona</span><ArrowDownRight size={19} />
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Phase Navigator Indicators */}
+        <div className="hero-phase-nav">
+          {heroPhases.map((hp, i) => (
+            <div
+              key={i}
+              className={`hero-phase-indicator ${i === activePhase ? 'is-active' : ''}`}
+            >
+              <span className="phase-dot" />
+              <span className="phase-name">{hp.tag.split('·')[1]?.trim() || `0${i+1}`}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="hero-bottom">
+          <span className="hero-scroll"><ArrowDown size={15} /> Scroll to explore</span>
+          <div className="hero-stats">
+            <div><b>32</b><span>ACRES OF LAND</span></div>
+            <div><b>60<span>+</span></b><span>AMENITIES</span></div>
+            <div><b>80<span>%</span></b><span>OPEN GREEN</span></div>
+          </div>
+          <span className="hero-index">0{activePhase + 1} / 04</span>
+        </div>
+
+        <div className="hero-vertical">A NEW PERSPECTIVE ON ISLAND LIVING</div>
+      </section>
+    </div>
   );
 }
 
@@ -650,6 +644,7 @@ function Residence() {
 /* ─── RoomExplorer (Sheryians-Style Showcase) ─── */
 function RoomExplorer() {
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
   const [modalRoom, setModalRoom] = useState(null);
   const section = useRef(null);
   const track = useRef(null);
@@ -668,7 +663,13 @@ function RoomExplorer() {
           pin: true,
           pinSpacing: true,
           invalidateOnRefresh: true,
-          onUpdate: self => setActive(Math.min(cards.length - 1, Math.floor(self.progress * cards.length))),
+          onUpdate: self => {
+            const idx = Math.min(cards.length - 1, Math.floor(self.progress * cards.length));
+            if (idx !== activeRef.current) {
+              activeRef.current = idx;
+              setActive(idx);
+            }
+          },
         },
       });
     }, section);
@@ -740,6 +741,7 @@ function RoomExplorer() {
 /* ─── Amenities (Sheryians-Style Showcase) ─── */
 function Amenities() {
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
   const section = useRef(null);
   const track = useRef(null);
 
@@ -759,7 +761,10 @@ function Amenities() {
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const idx = Math.min(cards.length - 1, Math.floor(self.progress * cards.length));
-            setActive(idx);
+            if (idx !== activeRef.current) {
+              activeRef.current = idx;
+              setActive(idx);
+            }
           },
         },
       });
@@ -879,7 +884,7 @@ function Footer() {
 
 /* ─── App root ─── */
 export default function App() {
-  const [scrollPct, setScrollPct] = useState(0);
+  const progressBarRef = useRef(null);
 
   useEffect(() => {
     /* ── Lenis smooth scroll ── */
@@ -888,7 +893,12 @@ export default function App() {
       easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: 0.88,
+<<<<<<< HEAD
       touchMultiplier: 2,
+=======
+      touchMultiplier: 1.5,
+      syncTouch: true,
+>>>>>>> 29dece4 (Perf: Optimize mobile scroll performance, WebP frame scrubbing & zero React re-render scroll pipeline)
     });
 
     /* Single shared RAF via GSAP ticker */
@@ -901,7 +911,10 @@ export default function App() {
 
     const onScroll = () => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
-      if (total > 0) setScrollPct(Math.min(100, Math.round(window.scrollY / total * 100)));
+      if (total > 0 && progressBarRef.current) {
+        const scale = Math.min(1, Math.max(0, window.scrollY / total));
+        progressBarRef.current.style.transform = `scaleX(${scale})`;
+      }
     };
     window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -915,7 +928,7 @@ export default function App() {
   const handleEnquire = () => document.querySelector('#enquire')?.scrollIntoView({ behavior: 'smooth' });
 
   return <>
-    <div className="scroll-progress" style={{ transform: `scaleX(${scrollPct / 100})` }} />
+    <div className="scroll-progress" ref={progressBarRef} style={{ transformOrigin: 'left', transform: 'scaleX(0)' }} />
     <Navigation onEnquire={handleEnquire} />
     <main>
       <Hero />

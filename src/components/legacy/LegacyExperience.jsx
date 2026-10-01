@@ -65,9 +65,11 @@ const MILESTONE_PROJECTS = [
 export default function LegacyExperience() {
   const sectionRef = useRef(null);
   const mouseRef = useRef({ x: 0, y: 0 });
-
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [activeSceneName, setActiveSceneName] = useState('INTRO');
+  const scrollProgressRef = useRef(0);
+  const barIndicatorRef = useRef(null);
+  const sceneNameRef = useRef(null);
+  const activeSceneRef = useRef('');
+  const hudProgressRef = useRef(null);
   const [debugMode, setDebugMode] = useState(false);
 
   // Check URL debug parameter (?debug=true)
@@ -115,15 +117,29 @@ export default function LegacyExperience() {
           anticipatePin: 1,
           onUpdate: (self) => {
             const p = self.progress;
-            setScrollProgress(p);
+            scrollProgressRef.current = p;
+            if (barIndicatorRef.current) {
+              barIndicatorRef.current.style.transform = `scaleX(${p})`;
+            }
+            if (hudProgressRef.current) {
+              hudProgressRef.current.textContent = `${(p * 100).toFixed(1)}%`;
+            }
 
-            if (p < 0.12) setActiveSceneName('SCENE 0: INTRO');
-            else if (p < 0.25) setActiveSceneName('SCENE 1: 1980 FOUNDATION');
-            else if (p < 0.38) setActiveSceneName('SCENE 2: 1986 EXPANSION');
-            else if (p < 0.62) setActiveSceneName('SCENE 3: MILESTONES MUSEUM');
-            else if (p < 0.76) setActiveSceneName('SCENE 4: CITY MEETS SEA');
-            else if (p < 0.90) setActiveSceneName('SCENE 5: VERONA REVEAL');
-            else setActiveSceneName('SCENE 6: FINALE & TRANSITION');
+            let name = 'SCENE 0: INTRO';
+            if (p < 0.12) name = 'SCENE 0: INTRO';
+            else if (p < 0.25) name = 'SCENE 1: 1980 FOUNDATION';
+            else if (p < 0.38) name = 'SCENE 2: 1986 EXPANSION';
+            else if (p < 0.62) name = 'SCENE 3: MILESTONES MUSEUM';
+            else if (p < 0.76) name = 'SCENE 4: CITY MEETS SEA';
+            else if (p < 0.90) name = 'SCENE 5: VERONA REVEAL';
+            else name = 'SCENE 6: FINALE & TRANSITION';
+
+            if (name !== activeSceneRef.current) {
+              activeSceneRef.current = name;
+              if (sceneNameRef.current) {
+                sceneNameRef.current.textContent = name;
+              }
+            }
           },
         },
       });
@@ -227,7 +243,7 @@ export default function LegacyExperience() {
       <LegacyCursor containerRef={sectionRef} />
 
       {/* Persistent Three.js WebGL Canvas in Background */}
-      <Legacy3DCanvas scrollProgress={scrollProgress} mouseRef={mouseRef} />
+      <Legacy3DCanvas scrollProgressRef={scrollProgressRef} mouseRef={mouseRef} />
 
       {/* Subtle Vignette & Grid */}
       <div className="legacy-film-vignette" />
@@ -237,8 +253,8 @@ export default function LegacyExperience() {
       {debugMode && (
         <div className="legacy-debug-hud">
           <div className="hud-title">⚡ RAHEJA LEGACY FILM DEBUG HUD</div>
-          <div className="hud-row"><span>Active Scene:</span> <b style={{ color: '#c9a96a' }}>{activeSceneName}</b></div>
-          <div className="hud-row"><span>Master Progress:</span> <b>{(scrollProgress * 100).toFixed(1)}%</b></div>
+          <div className="hud-row"><span>Active Scene:</span> <b ref={sceneNameRef} style={{ color: '#c9a96a' }}>SCENE 0: INTRO</b></div>
+          <div className="hud-row"><span>Master Progress:</span> <b ref={hudProgressRef}>0.0%</b></div>
           <div className="hud-row"><span>WebGL Canvas:</span> <b style={{ color: '#66e0a3' }}>ACTIVE (ONE SCENE ONLY)</b></div>
         </div>
       )}
@@ -409,10 +425,10 @@ export default function LegacyExperience() {
       {/* Persistent Bottom Bar */}
       <div className="legacy-bottom-bar">
         <div className="bar-progress-track">
-          <div className="bar-progress-indicator" style={{ width: `${scrollProgress * 100}%` }} />
+          <div className="bar-progress-indicator" ref={barIndicatorRef} style={{ transformOrigin: 'left', transform: 'scaleX(0)' }} />
         </div>
         <div className="bar-labels">
-          <span>{activeSceneName}</span>
+          <span ref={sceneNameRef}>SCENE 0: INTRO</span>
           <span>RAHEJA UNIVERSAL · 1980 — TODAY</span>
         </div>
       </div>
